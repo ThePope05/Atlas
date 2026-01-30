@@ -39,7 +39,6 @@ if (isset($argv[1])) {
                 fwrite($newModelFile, $modelContent);
                 fclose($newModelFile);
             }
-
             if (in_array("-c", $argv) || in_array("-a", $argv)) {
                 writeTerminalLine(["bold", "green"], "Creating new controller");
 

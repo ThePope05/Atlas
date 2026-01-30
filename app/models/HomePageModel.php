@@ -2,7 +2,7 @@
 
 class HomePageModel extends BaseModel
 {
-    private $db;
+    public $db;
 
     public function __construct()
     {
