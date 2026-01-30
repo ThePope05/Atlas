@@ -19,8 +19,6 @@ $terminalStyles = [
     "hidden" => "\033[8m",
 ];
 
-writeTerminalLine([["bold", "underline", "reverse"], "magenta"], "Swift activated");
-
 if (isset($argv[1])) {
     if (strtoupper($argv[1]) == "CREATE") {
         if (isset($argv[2])) {
@@ -93,7 +91,7 @@ if (isset($argv[1])) {
     } else if (strtoupper($argv[1]) == "DATABASE") {
         writeTerminalLine(["bold", "green"], "Executing database");
 
-        require_once './app/config/config.php';
+        require_once './config/config.php';
 
         $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME;
 
@@ -204,10 +202,9 @@ function removeAllTerminalStyles()
     echo TS_Reset;
 }
 
-function cancelScript($message = "Stopping Swift")
+function cancelScript($message = "")
 {
     echo TS_Reset . "\n";
-    writeTerminalLine([["bold", "underline", "reverse"], "magenta"], $message);
     echo TS_Reset . "\n";
     exit();
 }
