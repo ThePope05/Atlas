@@ -1,0 +1,8 @@
+{
+	"autoload": {
+		"psr-4": {
+			"Constants\\": "libraries/Constants/",
+			"Classes\\Routing\\": "libraries/Classes/Routing/"
+		}
+	}
+}
