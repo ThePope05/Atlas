@@ -2,7 +2,6 @@
 
 namespace Libraries\Classes\Mvc;
 
-
 abstract class Controller
 {
     protected function View(string $viewName, array $data = [])

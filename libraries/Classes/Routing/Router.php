@@ -19,7 +19,7 @@ class Router
     public function LogRoutes()
     {
         foreach ($this->routes as $route) {
-            echo $route->Uri . " -> " . $route->Class . "-" . $route->Method . "\n";
+            echo $route->Uri . " -> " . $route->Class . "::" . $route->Method . "\n";
         }
     }
 
@@ -38,6 +38,9 @@ class Router
                 return;
             }
         }
+
+        $viewEngine = new \Libraries\Classes\ViewCompiler\ViewEngine();
+        $viewEngine->render("forbiddenpage");
     }
 
     public function GetUri()

@@ -3,9 +3,11 @@
 		"psr-4": {
 			"Libraries\\Constants\\": "libraries/Constants/",
 			"Libraries\\Classes\\ViewCompiler\\": "libraries/Classes/ViewCompiler/",
+			"Libraries\\Classes\\ModuleLoader\\": "libraries/Classes/ModuleLoader/",
 			"Libraries\\Classes\\Routing\\": "libraries/Classes/Routing/",
 			"Libraries\\Classes\\Mvc\\": "libraries/Classes/Mvc",
-			"app\\controllers\\": "app/Controllers"
+			"App\\Controllers\\": "app/Controllers/",
+			"Modules\\": "modules/"
 		}
 	}
 }

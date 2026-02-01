@@ -1,1 +1,0 @@
-<h1><?= ($data["pagetitle"] != null) ? $data["pagetitle"] : "Welcome page" ?></h1>

@@ -1,7 +1,7 @@
 <?php
 
 use Libraries\Classes\Routing\Route;
-use app\controllers\TestController;
+use App\Controllers\TestController;
 
 
 Route::Get("/welcome", [TestController::class, "Test"]);

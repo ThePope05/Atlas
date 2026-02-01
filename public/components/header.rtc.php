@@ -1,1 +1,1 @@
-<h1>{{ ($data["pagetitle"] != null) ? $data["pagetitle"] : "Welcome page" }}</h1>
+<h1>Welcome</h1>
