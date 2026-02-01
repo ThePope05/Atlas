@@ -11,11 +11,12 @@ class ComposerStaticInitbec24b26ea0656b9e702ada09f5f4125
         array (
             'app\\controllers\\' => 16,
         ),
-        'C' => 
+        'L' => 
         array (
-            'Constants\\' => 10,
-            'Classes\\Routing\\' => 16,
-            'Classes\\Mvc\\' => 12,
+            'Libraries\\Constants\\' => 20,
+            'Libraries\\Classes\\ViewCompiler\\' => 31,
+            'Libraries\\Classes\\Routing\\' => 26,
+            'Libraries\\Classes\\Mvc\\' => 22,
         ),
     );
 
@@ -24,15 +25,19 @@ class ComposerStaticInitbec24b26ea0656b9e702ada09f5f4125
         array (
             0 => __DIR__ . '/../..' . '/app/Controllers',
         ),
-        'Constants\\' => 
+        'Libraries\\Constants\\' => 
         array (
             0 => __DIR__ . '/../..' . '/libraries/Constants',
         ),
-        'Classes\\Routing\\' => 
+        'Libraries\\Classes\\ViewCompiler\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/libraries/Classes/ViewCompiler',
+        ),
+        'Libraries\\Classes\\Routing\\' => 
         array (
             0 => __DIR__ . '/../..' . '/libraries/Classes/Routing',
         ),
-        'Classes\\Mvc\\' => 
+        'Libraries\\Classes\\Mvc\\' => 
         array (
             0 => __DIR__ . '/../..' . '/libraries/Classes/Mvc',
         ),

@@ -1,8 +1,8 @@
 <?php
 
-namespace Classes\Routing;
+namespace Libraries\Classes\Routing;
 
-use Constants\RouteActions;
+use Libraries\Constants\RouteActions;
 
 class Route
 {

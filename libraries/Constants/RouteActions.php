@@ -1,6 +1,6 @@
 <?php
 
-namespace Constants {
+namespace Libraries\Constants {
 
     enum RouteActions
     {

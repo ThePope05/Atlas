@@ -1,9 +1,10 @@
 {
 	"autoload": {
 		"psr-4": {
-			"Constants\\": "libraries/Constants/",
-			"Classes\\Routing\\": "libraries/Classes/Routing/",
-			"Classes\\Mvc\\": "libraries/Classes/Mvc",
+			"Libraries\\Constants\\": "libraries/Constants/",
+			"Libraries\\Classes\\ViewCompiler\\": "libraries/Classes/ViewCompiler/",
+			"Libraries\\Classes\\Routing\\": "libraries/Classes/Routing/",
+			"Libraries\\Classes\\Mvc\\": "libraries/Classes/Mvc",
 			"app\\controllers\\": "app/Controllers"
 		}
 	}

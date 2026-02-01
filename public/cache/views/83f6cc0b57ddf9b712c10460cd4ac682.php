@@ -4,11 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Homepage</title>
+
+    <link rel="stylesheet" href="/public/css/style.css">
+    <title>HomePage</title>
 </head>
 
 <body>
-    <h1><?= ($data["pagetitle"] != null) ? $data["pagetitle"] : "Welcome page" ?></h1>
+    <?php $this->render('header', get_defined_vars(), true); ?>
 </body>
 
 </html>
