@@ -59,7 +59,10 @@ class ViewEngine
 
         $contents = preg_replace_callback(
             '/@component\(\s*[\'"](.+?)[\'"]\s*\)/',
-            fn($m) => "<?php \$this->render('{$m[1]}', get_defined_vars(), false, true); ?>",
+            fn($m) => "<?php 
+            use Libraries\Constants\Compilable;
+            \$this->render('{$m[1]}', get_defined_vars(), Compilable::Component); 
+            ?>",
             $contents
         );
 
