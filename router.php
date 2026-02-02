@@ -8,11 +8,14 @@
 //If not valid, it will send the user to the /public/error.php file
 
 //We need to start by making sure the url is valid
+include __DIR__ . '/vendor/autoload.php';
+
+use Libraries\Classes\FileCompiler\CompileEngine;
 
 $url = $_SERVER['REQUEST_URI'];
-
 if (isset($_SERVER['HTTP_REFERER'])) {
     // Get the file extension
+    //var_dump($_SERVER);
     $extension = pathinfo($url, PATHINFO_EXTENSION);
 
     // Set the Content-Type header based on the file extension
@@ -48,23 +51,20 @@ if (isset($_SERVER['HTTP_REFERER'])) {
         header('Content-Type: text/html');
     }
 
+    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    $file = __DIR__ . $path;
     // Check if the file exists
-    if (file_exists(__DIR__ . $url)) {
+    if (file_exists($file)) {
         // If the file exists, output its contents
-        echo file_get_contents(__DIR__ . $url);
+        $compileEngine = new CompileEngine();
+        $compileEngine->TryGetFile($path);
+        http_response_code(200);
+        exit();
     } else {
         // If the file does not exist, send a 404 'Not Found' response
         http_response_code(404);
     }
 } else {
-    //We need to check if the url contains any dangerous characters
-
-    if (preg_match('/[\'^£$%&*()}{@#~?><>,|=_+¬-]/', $url)) {
-        //If it does, we need to send back a 403 error
-        http_response_code(403);
-        exit();
-    }
-
     //We need to check if the url contains any php code
 
     if (preg_match('/<\?php/i', $url)) {
@@ -105,7 +105,7 @@ if (isset($_SERVER['HTTP_REFERER'])) {
         exit();
     }
 
-    // session_start();
+    session_start();
 
     // Set the maximum number of tokens and the refill rate
     $max_tokens = 100;
@@ -135,4 +135,4 @@ if (isset($_SERVER['HTTP_REFERER'])) {
     // If we get here, there are enough tokens to fulfill the request
 }
 
-require_once './app/require.php';
+require __DIR__ . '/app/index.php';

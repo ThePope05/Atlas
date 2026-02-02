@@ -6,7 +6,7 @@ use Libraries\Classes\Mvc\ModuleController;
 
 class ModuleTestController extends ModuleController
 {
-    public string $moduleName = "ModuleTest";
+    protected string $moduleName = "ModuleTest";
 
     public function ModulePage($pagetitle)
     {

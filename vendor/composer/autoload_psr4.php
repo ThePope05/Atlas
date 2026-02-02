@@ -8,9 +8,9 @@ $baseDir = dirname($vendorDir);
 return array(
     'Modules\\' => array($baseDir . '/modules'),
     'Libraries\\Constants\\' => array($baseDir . '/libraries/Constants'),
-    'Libraries\\Classes\\ViewCompiler\\' => array($baseDir . '/libraries/Classes/ViewCompiler'),
     'Libraries\\Classes\\Routing\\' => array($baseDir . '/libraries/Classes/Routing'),
     'Libraries\\Classes\\Mvc\\' => array($baseDir . '/libraries/Classes/Mvc'),
     'Libraries\\Classes\\ModuleLoader\\' => array($baseDir . '/libraries/Classes/ModuleLoader'),
+    'Libraries\\Classes\\FileCompiler\\' => array($baseDir . '/libraries/Classes/FileCompiler'),
     'App\\Controllers\\' => array($baseDir . '/app/Controllers'),
 );

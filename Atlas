@@ -1,4 +1,10 @@
 <?php
+
+include __DIR__ . '/vendor/autoload.php';
+
+use Libraries\Classes\ModuleLoader\ModuleEngine;
+use Libraries\Classes\Routing\Router;
+
 define("TS_Reset", "\033[0m");
 
 $terminalColors = [
@@ -161,12 +167,19 @@ if (isset($argv[1])) {
             cancelScript();
         }
     } else if (strtoupper($argv[1]) == "LOCALHOST") {
-        include_once 'app/config/config.php';
+        include_once 'config/config.php';
 
-        $server = "localhost:" . PORT;
+        $server = "0.0.0.0:" . PORT;
 
         removeAllTerminalStyles();
         shell_exec(sprintf('php -S %s router.php', $server) . " -c app/config/php.ini");
+    } else if (strtoupper($argv[1]) == "ROUTES:LIST") {
+        $router = new Router();
+        $moduleLoader = new ModuleEngine();
+
+        require "./routes.php";
+        $moduleLoader->LoadModules();
+        $router->LogRoutes();
     } else {
         writeTerminalLine(["bold", "red"], "Command not found" . PHP_EOL);
         writeTerminalLine(["bold", "yellow"], "Available commands:");
@@ -193,7 +206,6 @@ function writeTerminalLine($style = [["bold"], "red"], $text = "No Text Specifie
 
 
     echo $terminalColors[$style[1]] . $text . "\n" . TS_Reset;
-    echo $terminalStyles["bold"] . $terminalColors["red"];
 }
 
 function removeAllTerminalStyles()
@@ -203,7 +215,6 @@ function removeAllTerminalStyles()
 
 function cancelScript($message = "")
 {
-    echo TS_Reset . "\n";
-    echo TS_Reset . "\n";
+    echo TS_Reset . "\n\n";
     exit();
 }

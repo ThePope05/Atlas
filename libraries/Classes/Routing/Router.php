@@ -39,8 +39,9 @@ class Router
             }
         }
 
-        $viewEngine = new \Libraries\Classes\ViewCompiler\ViewEngine();
-        $viewEngine->render("forbiddenpage");
+        $viewEngine = new \Libraries\Classes\FileCompiler\ViewEngine();
+        $viewEngine->TryGetFile("forbiddenpage");
+        http_response_code(404);
     }
 
     public function GetUri()

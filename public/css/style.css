@@ -16,7 +16,7 @@ body {
 	align-items: center;
 	background-color: #292c2e;
 	color: #ddddf0;
-	font-size: 4rem;
+	font-size: 2rem;
 	font-family: Arial, Helvetica, sans-serif;
 	text-shadow:
 		#7e7edf 0px 0px 3rem,
@@ -25,7 +25,7 @@ body {
 
 .error-msg {
 	color: #f0dddd;
-	font-size: 2rem;
+	font-size: 1rem;
 	font-family: Arial, Helvetica, sans-serif;
 	text-shadow:
 		#df7e7e 0px 0px 3rem,
