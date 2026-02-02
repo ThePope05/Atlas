@@ -21,16 +21,16 @@ body {
 	text-shadow:
 		#7e7edf 0px 0px 3rem,
 		#c7c7eb 0px 0px 1rem;
-}
 
-body > h3 {
-	font-size: 2rem;
-}
-body > h1 {
-	color: #dde9f0;
-	text-shadow:
-		#7ebcdf 0px 0px 3rem,
-		#c7ddeb 0px 0px 1rem;
+	> h3 {
+		font-size: 2rem;
+	}
+	> h1 {
+		color: #dde9f0;
+		text-shadow:
+			#7ebcdf 0px 0px 3rem,
+			#c7ddeb 0px 0px 1rem;
+	}
 }
 
 .error-msg {
