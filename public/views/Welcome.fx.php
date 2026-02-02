@@ -10,7 +10,30 @@
 </head>
 
 <body>
-    @component('WelcomeTitle')
+    <h2>Welcome to</h2>
+    <div class="perspective-box">
+        <div class="box">
+            <div class="front">
+                @component('WelcomeTitle')
+            </div>
+            <div class="right">
+                @component('WelcomeTitle')
+            </div>
+            <div class="back">
+                @component('WelcomeTitle')
+            </div>
+            <div class="left">
+                @component('WelcomeTitle')
+            </div>
+            <div class="top">
+            </div>
+            <div class="bottom">
+            </div>
+
+            <div class="shadow">
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>
