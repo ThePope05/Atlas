@@ -39,17 +39,14 @@ class FluxCompileEngine extends CompileEngine
 
         $contents = preg_replace_callback(
             '/@component\(\s*([\'"])([^\'"]+)\1(?:\s*,\s*([\'"])([^\'"]+)\3)?\s*\)/',
-            fn($m) => "<?php
-            if ('{$m[4]}' == '')
-            {
+            fn($m) => "<?php"
+                . (($m[4] == '') ? "
                 \$componentEngineInstance = new \$this->componentEngine();
-                \$componentEngineInstance->TryGetFile('{$m[2]}', get_defined_vars());
-            } else {
+                \$componentEngineInstance->TryGetFile('{$m[2]}', get_defined_vars()); "
+                    : "
                 \$componentEngineInstance = new \$this->componentEngine();
                 \$componentEngineInstance->ModuleName = '{$m[4]}';
-                \$componentEngineInstance->TryGetFile('{$m[2]}', get_defined_vars());
-            }
-            ?>",
+                \$componentEngineInstance->TryGetFile('{$m[2]}', get_defined_vars());") . "?>",
             $contents
         );
 
