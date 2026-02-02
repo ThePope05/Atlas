@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    @component('header')
+    @component('WelcomeTitle')
 </body>
 
 </html>
