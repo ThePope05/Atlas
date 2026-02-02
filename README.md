@@ -10,7 +10,7 @@ To use Atlas simply clone the repository, and run:
 composer dumpautoload
 ```
 
-Or clone my structure tool, which also contains the Atlas framework.
+Or clone [my structure tool](https://github.com/ThePope05/StructureTool), which also contains the Atlas framework.
 And then run:
 
 ```cmd
