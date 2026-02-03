@@ -6,6 +6,10 @@ html {
 	margin: 0;
 	padding: 0;
 	box-sizing: border-box;
+
+	font-family: "Sansation", sans-serif;
+	font-weight: 700;
+	font-style: normal;
 }
 
 body {
@@ -15,17 +19,19 @@ body {
 	justify-content: center;
 	align-items: center;
 	background-color: #292c2e;
-	color: #ddddf0;
+	color: #33363a;
 	font-size: 2rem;
 	font-family: Arial, Helvetica, sans-serif;
-	text-shadow:
-		#7e7edf 0px 0px 3rem,
-		#c7c7eb 0px 0px 1rem;
 
 	h2 {
 		position: absolute;
 		font-size: 8rem;
-		top: 26%;
+		top: 20%;
+
+		font-family: "Lexend Deca", sans-serif;
+		font-optical-sizing: auto;
+		font-weight: 400;
+		font-style: normal;
 	}
 
 	.perspective-box {
@@ -45,6 +51,56 @@ body {
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			background: #00000000 !important;
+		}
+		.circle {
+			position: absolute;
+			transform-style: preserve-3d;
+			width: 300px;
+			height: 300px;
+			border-radius: 50%;
+			border: #c7ddeb 2px solid;
+			background: #00000000 !important;
+			// background: linear-gradient(
+			// 	0deg,
+			// 	rgba(27, 29, 31, 1) 50%,
+			// 	rgba(63, 68, 73, 1) 60%
+			// );
+
+			&.horizontal {
+				border: #c7ddeb 4px solid !important;
+				&:nth-child(6) {
+					width: 290px;
+					height: 290px;
+					transform: rotateX(90deg) translateZ(150px) translateX(5px);
+				}
+				&:nth-child(7) {
+					width: 290px;
+					height: 290px;
+					transform: rotateX(90deg) translateZ(50px) translateX(5px);
+				}
+				&:nth-child(8) {
+					width: 230px;
+					height: 230px;
+					transform: rotateX(90deg) translateZ(160px) translateX(35px);
+				}
+				&:nth-child(9) {
+					width: 230px;
+					height: 230px;
+					transform: rotateX(90deg) translateZ(-30px) translateX(35px);
+				}
+				&:nth-child(10) {
+					width: 300px;
+					height: 300px;
+					transform: rotateX(90deg) translateZ(100px);
+				}
+			}
+
+			@for $i from 1 through 5 {
+				&:nth-child(#{$i}) {
+					transform: translateY(-100px) rotateY(72deg * $i);
+				}
+			}
 		}
 		.back,
 		.front {
@@ -77,27 +133,79 @@ body {
 		.shadow,
 		.top {
 			position: absolute;
-			background-color: #25282b;
 			width: 300px;
 			height: 300px;
 			top: 50px;
 		}
 		.top {
 			transform: rotateX(90deg) translateZ(200px);
+			background-color: #3f4449;
 		}
 		.bottom {
 			transform: rotateX(-90deg) translateZ(-100px);
+			background-color: #1b1d1f;
 		}
 		.shadow {
-			background-color: #1b1d1fe7;
-			transform: rotateX(-90deg) rotateX(-20deg) translateY(50px);
-			filter: blur(2rem);
+			border-radius: 50%;
+			background-color: #c7ddeb1c !important;
+			transform: rotateX(-90deg) rotateX(-10deg) translateY(50px)
+				translateZ(20px);
+			filter: blur(3rem);
 		}
 		h1 {
+			position: absolute;
 			color: #dde9f0;
 			text-shadow:
 				#7ebcdf 0px 0px 3rem,
 				#c7ddeb 0px 0px 1rem;
+
+			transform: translateZ(30px);
+
+			&.depth {
+				color: #292c2e;
+				text-shadow:
+					#ffffff1e 2px 2px 0,
+					#00000018 -2px -2px 0;
+			}
+		}
+	}
+
+	.text-banner {
+		position: absolute;
+		width: 300px;
+		height: 300px;
+		display: flex;
+		transform-style: preserve-3d;
+		transform: translateX(20px) translateY(-70px);
+
+		$width: 42.5px;
+		.panel {
+			position: absolute;
+			transform: translate(-50%, -50%) rotateY(var(--angle))
+				translateZ(160px);
+			width: $width;
+			height: 70px;
+			border: #c7ddeb 2px solid !important;
+			border-left: none !important;
+			border-right: none !important;
+			background-color: #33363a;
+			overflow: hidden;
+
+			@for $i from 0 to 24 {
+				&:nth-child(#{$i + 1}) {
+					--left: #{$width * $i * -1};
+					--angle: #{calc(360deg / 24 * $i)};
+				}
+			}
+		}
+
+		.panel::before {
+			position: absolute;
+			left: var(--left);
+			content: "ATLAS ATLAS ATLAS ATLAS";
+			font-size: 70px;
+			width: max-content;
+			color: #dde9f0;
 		}
 	}
 }
@@ -110,12 +218,11 @@ body {
 		#df7e7e 0px 0px 3rem,
 		#ebc7c7 0px 0px 1rem;
 }
-
 @keyframes spinning-box {
 	0% {
-		transform: rotateY(0deg) rotateX(20deg);
+		transform: rotateY(0deg) rotateX(10deg);
 	}
 	100% {
-		transform: rotateY(-359deg) rotateX(20deg);
+		transform: rotateY(-359deg) rotateX(10deg);
 	}
 }
