@@ -148,8 +148,7 @@ body {
 		.shadow {
 			border-radius: 50%;
 			background-color: #c7ddeb1c !important;
-			transform: rotateX(-90deg) rotateX(-10deg) translateY(50px)
-				translateZ(20px);
+			animation: shadow-bounce 10s forwards infinite ease-in-out;
 			filter: blur(3rem);
 		}
 		h1 {
@@ -224,5 +223,20 @@ body {
 	}
 	100% {
 		transform: rotateY(-359deg) rotateX(10deg);
+	}
+}
+
+@keyframes shadow-bounce {
+	0% {
+		transform: rotateX(-90deg) rotateX(-10deg) translateY(50px)
+			translateZ(20px);
+	}
+	50% {
+		transform: rotateX(-90deg) rotateX(-10deg) translateY(50px)
+			translateZ(60px);
+	}
+	100% {
+		transform: rotateX(-90deg) rotateX(-10deg) translateY(50px)
+			translateZ(20px);
 	}
 }
