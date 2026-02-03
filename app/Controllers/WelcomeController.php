@@ -8,6 +8,6 @@ class WelcomeController extends Controller
 {
     public function WelcomePage($pagetitle)
     {
-        $this->View("Welcome", ["pagetitle" => $pagetitle]);
+        $this->view("Welcome", ["pagetitle" => $pagetitle]);
     }
 }

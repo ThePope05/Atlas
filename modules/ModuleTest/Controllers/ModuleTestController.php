@@ -10,6 +10,6 @@ class ModuleTestController extends ModuleController
 
     public function ModulePage($pagetitle)
     {
-        $this->View("Welcome");
+        $this->view("Welcome");
     }
 }

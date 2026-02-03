@@ -8,7 +8,7 @@ abstract class ModuleController
 {
     protected string $moduleName = "";
 
-    protected function View(string $viewName, array $data = [])
+    protected function view(string $viewName, array $data = [])
     {
         $viewEngine = new \Libraries\Classes\FileCompiler\ModuleViewEngine();
         $viewEngine->ModuleName = $this->moduleName;
