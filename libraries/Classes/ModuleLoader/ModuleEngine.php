@@ -20,6 +20,9 @@ class ModuleEngine
             $modules[] = $class;
         }
 
+        if (is_null($modules) || array_count_values($modules) <= 0)
+            return;
+
         foreach ($modules as $module) {
             $module::register();
         }

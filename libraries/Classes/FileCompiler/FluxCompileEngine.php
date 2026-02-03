@@ -25,8 +25,6 @@ class FluxCompileEngine extends CompileEngine
         }
     }
 
-    protected string $componentEngine = ComponentEngine::class;
-
     protected function compile(string $source, string $compiled)
     {
         $contents = file_get_contents($source);
@@ -40,13 +38,14 @@ class FluxCompileEngine extends CompileEngine
         $contents = preg_replace_callback(
             '/@component\(\s*([\'"])([^\'"]+)\1(?:\s*,\s*([\'"])([^\'"]+)\3)?\s*\)/',
             fn($m) => "<?php"
-                . (($m[4] == '') ? "
-                \$componentEngineInstance = new \$this->componentEngine();
+                . ((!isset($m[4]) || $m[4] == '') ? "
+                \$componentEngineInstance = new Libraries\Classes\FileCompiler\ComponentEngine();
                 \$componentEngineInstance->TryGetFile('{$m[2]}', get_defined_vars()); "
                     : "
-                \$componentEngineInstance = new \$this->componentEngine();
+                \$componentEngineInstance = new Libraries\Classes\FileCompiler\ModuleComponentEngine();
                 \$componentEngineInstance->ModuleName = '{$m[4]}';
-                \$componentEngineInstance->TryGetFile('{$m[2]}', get_defined_vars());") . "?>",
+                \$componentEngineInstance->TryGetFile('{$m[2]}', get_defined_vars());") .
+                "\n ?>",
             $contents
         );
 
