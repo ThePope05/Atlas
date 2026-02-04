@@ -70,7 +70,7 @@ body {
 			width: 300px;
 			height: 300px;
 			border-radius: 50%;
-			border: #c7ddeb 2px solid;
+			border: #c7ddeb 3px solid;
 			background: #00000000 !important;
 			// background: linear-gradient(
 			// 	0deg,
@@ -79,7 +79,7 @@ body {
 			// );
 
 			&.horizontal {
-				border: #c7ddeb 4px solid !important;
+				border: #c7ddeb 6px solid !important;
 				&:nth-child(6) {
 					width: 290px;
 					height: 290px;
