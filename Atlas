@@ -122,22 +122,25 @@ if (isset($argv[1])) {
                 fclose($componentFile);
                 writeTerminalLine(["bold", "green"], "Created new component...");
             }
-            // if (in_array("-d", $argv)) {
-            //     writeTerminalLine(["bold", "green"], "Creating new database file");
+            if (in_array("-d", $argv)) {
+                $dbName = $argv[2];
 
-            //     //Create the database
-            //     $dbFile = fopen("./libraries/components/newDatabaseScript.sql", "r") or die("Unable to open file!");
-            //     $dbContent = fread($dbFile, filesize("./libraries/components/newDatabaseScript.sql"));
-            //     fclose($dbFile);
+                //Create the database
+                $dbFile = fopen($templatePath . "DatabaseTemplate.sql", "r") or die("Unable to open file!");
+                $dbContent = fread($dbFile, filesize($templatePath . "DatabaseTemplate.sql"));
+                fclose($dbFile);
 
-            //     $allDbFiles = glob('./app/db/*.sql');
-            //     $fileCount = count($allDbFiles) + 1;
-            //     $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
+                $dbContent = str_replace("TABLE_NAME", $dbName, $dbContent);
 
-            //     $newDbFile = fopen("./app/db/" . $fileNumber . "_" . $passedName . ".sql", "w") or die("Unable to open file!");
-            //     fwrite($newDbFile, $dbContent);
-            //     fclose($newDbFile);
-            // }
+                $allDbFiles = glob('./app/db/*.sql');
+                $fileCount = count($allDbFiles) + 1;
+                $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
+
+                $newDbFile = fopen("./app/db/" . $fileNumber . "_" . $passedName . ".sql", "w") or die("Unable to open file!");
+                fwrite($newDbFile, $dbContent);
+                fclose($newDbFile);
+                writeTerminalLine(["bold", "green"], "Created new database file...");
+            }
 
             cancelScript();
         }
