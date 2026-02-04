@@ -28,4 +28,11 @@ class Route
         $method_name = $access[1];
         new Route(RouteActions::Get, $uri, $class_name, $method_name);
     }
+
+    public static function Post(string $uri, array $access)
+    {
+        $class_name = $access[0];
+        $method_name = $access[1];
+        new Route(RouteActions::Post, $uri, $class_name, $method_name);
+    }
 }
