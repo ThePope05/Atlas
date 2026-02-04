@@ -2,12 +2,20 @@
 
 namespace App\Controllers;
 
+use App\Models\WelcomeModel;
 use Libraries\Classes\Mvc\Controller;
 
 class WelcomeController extends Controller
 {
-    public function WelcomePage($pagetitle)
+    public function __construct()
     {
-        $this->view("Welcome", ["pagetitle" => $pagetitle]);
+        $this->model = new WelcomeModel();
+    }
+
+    public function WelcomePage()
+    {
+        $allReservations = $this->model->GetAll();
+        //dd($allReservations);
+        $this->view("Welcome", ["reservations" => $allReservations]);
     }
 }

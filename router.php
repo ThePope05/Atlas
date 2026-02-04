@@ -9,6 +9,7 @@
 
 //We need to start by making sure the url is valid
 include __DIR__ . '/vendor/autoload.php';
+include __DIR__ . '/libraries/Constants/GlobalFunctions.php';
 
 use Libraries\Classes\FileCompiler\CompileEngine;
 
@@ -58,7 +59,6 @@ if (isset($_SERVER['HTTP_REFERER'])) {
         // If the file exists, output its contents
         $compileEngine = new CompileEngine();
         $compileEngine->TryGetFile($path);
-        http_response_code(200);
         exit();
     } else {
         // If the file does not exist, send a 404 'Not Found' response

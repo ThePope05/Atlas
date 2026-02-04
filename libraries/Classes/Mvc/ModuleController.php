@@ -2,9 +2,10 @@
 
 namespace Libraries\Classes\Mvc;
 
+use Exception;
 use Libraries\Constants\Compilable;
 
-abstract class ModuleController
+abstract class ModuleController extends Controller
 {
     protected string $moduleName = "";
 

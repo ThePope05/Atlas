@@ -7,6 +7,7 @@ class ModuleEngine
     public function LoadModules()
     {
         $config = json_decode(file_get_contents(__DIR__ . '/../../../config/modules.json'), true);
+        $modules = null;
 
         foreach ($config['modules'] as $data) {
             if (!$data['enabled']) continue;
@@ -20,7 +21,7 @@ class ModuleEngine
             $modules[] = $class;
         }
 
-        if (is_null($modules) || array_count_values($modules) <= 0)
+        if (isset($modules) || is_null($modules) || empty($modules))
             return;
 
         foreach ($modules as $module) {
