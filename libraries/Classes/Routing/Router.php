@@ -2,6 +2,8 @@
 
 namespace Libraries\Classes\Routing;
 
+use Libraries\Constants\RouteActions;
+
 class Router
 {
     private array $routes = [];
@@ -27,8 +29,18 @@ class Router
     {
         $uri = $this->GetUri();
 
+        $action = null;
+        switch ($_SERVER['REQUEST_METHOD']) {
+            case 'POST':
+                $action = RouteActions::Post;
+                break;
+            default:
+                $action = RouteActions::Get;
+                break;
+        }
+
         foreach ($this->routes as $route) {
-            if (str_starts_with($uri, $route->Uri)) {
+            if (str_starts_with($uri, $route->Uri) && $route->Action == $action) {
 
                 $class = new $route->Class();
                 call_user_func_array(
