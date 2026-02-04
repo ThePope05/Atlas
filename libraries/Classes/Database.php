@@ -69,4 +69,19 @@ class Database
             return $this->statement->execute();
         }
     }
+
+    public function DebugDump()
+    {
+        $this->statement->debugDumpParams();
+    }
+
+    public function fetch()
+    {
+        return $this->execute(true);
+    }
+
+    public function first()
+    {
+        return $this->execute(true)[0];
+    }
 }
