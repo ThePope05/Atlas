@@ -38,20 +38,45 @@ npm run dev
 php Atlas localhost
 ```
 
-To auto generate Models, Views, Controllers, or Components use:
+To auto generate Models, Views, Controllers, Database files, or Components use:
 ```cmd
 php Atlas create [name]
 ```
 
 In combination with one or multiple of the following:
 ```cmd
--m -v -c -comp
+-m -v -c -d -comp
 ```
 The -v and -comp commands can contains "/" to automatically make a folder for the view or component.
 This doesn't work for controllers and models.
+- -m = Model
+- -v = View
+- -c = Controller
+- -d = Database file
+- -comp = Component
+<hr>
 
 ```cmd
 php Atlas Route:list
 ```
+
+To run all database files in app/db/ use:
+```cmd
+php Atlas db
+```
+To run specific files add the number of the file to the end of the command.
+Atlas will keep track of the files that have been run. To rerun all files add:
+```cmd
+-R
+```
+And to force run a file use:
+```cmd
+-F
+```
+<br>
+<br>
+<br>
+<br>
+<br>
 
 current version 0.2
