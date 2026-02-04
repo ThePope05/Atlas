@@ -21,7 +21,7 @@ class ModuleEngine
             $modules[] = $class;
         }
 
-        if (isset($modules) || is_null($modules) || empty($modules))
+        if (!isset($modules) || is_null($modules) || empty($modules))
             return;
 
         foreach ($modules as $module) {
