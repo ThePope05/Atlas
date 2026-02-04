@@ -1,0 +1,7 @@
+{
+	"name": "ModuleLogin",
+	"version": "0.0.1",
+	"main": "ModuleLogin",
+	"routes": true,
+	"migrations": false
+}

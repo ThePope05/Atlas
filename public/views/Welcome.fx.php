@@ -13,6 +13,10 @@
 </head>
 
 <body>
+    <header>
+        @component('LoginBtn', 'ModuleLogin')
+    </header>
+
     @component('WelcomeTitle')
 </body>
 

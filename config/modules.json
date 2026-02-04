@@ -1,7 +1,7 @@
 {
 	"modules": [
 		{
-			"name": "ModuleTest",
+			"name": "ModuleLogin",
 			"version": "0.0.1",
 			"enabled": true
 		}

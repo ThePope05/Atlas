@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\ModuleTest;
+namespace Modules\ModuleLogin;
 
-class ModuleTest
+class ModuleLogin
 {
     public static function Register()
     {
