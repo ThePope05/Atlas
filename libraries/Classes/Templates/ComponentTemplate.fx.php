@@ -1,0 +1,1 @@
+<h1>COMPONENT_NAME</h1>

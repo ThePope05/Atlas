@@ -28,69 +28,117 @@ $terminalStyles = [
 if (isset($argv[1])) {
     if (strtoupper($argv[1]) == "CREATE") {
         if (isset($argv[2])) {
-            $model = $argv[2] . "Model";
-            $controller = $argv[2];
+            $templatePath = __DIR__ . "/libraries/classes/templates/";
+
+            $passedName = $argv[2];
 
             if (in_array("-m", $argv) || in_array("-a", $argv)) {
-                writeTerminalLine(["bold", "green"], "Creating new model");
+                $modelName = $argv[2] . "Model";
 
-                //Create the model
-                $modelFile = fopen("./libraries/components/newModel.php", "r") or die("Unable to open file!");
-                $modelContent = fread($modelFile, filesize("./libraries/components/newModel.php"));
+                $modelFile = fopen($templatePath . "ModelTemplate.php", "r") or die("Unable to open file!");
+                $modelContent = fread($modelFile, filesize($templatePath . "ModelTemplate.php"));
                 fclose($modelFile);
 
-                $modelContent = str_replace("MODEL_NAME", $model, $modelContent);
+                $modelContent = str_replace("MODEL_NAME", $modelName, $modelContent);
 
-                $newModelFile = fopen("./app/models/" . $model . ".php", "w") or die("Unable to open file!");
-                fwrite($newModelFile, $modelContent);
-                fclose($newModelFile);
+                $modelFile = fopen("./app/models/" . $modelName . ".php", "w") or die("Unable to open file!");
+                fwrite($modelFile, $modelContent);
+                fclose($modelFile);
+                writeTerminalLine(["bold", "green"], "Created new model...");
             }
             if (in_array("-c", $argv) || in_array("-a", $argv)) {
-                writeTerminalLine(["bold", "green"], "Creating new controller");
+                $modelName = $argv[2] . "Model";
+                $controllerName = $passedName . "Controller";
 
-                //Create the controller
-                $controllerFile = fopen("./libraries/components/newController.php", "r") or die("Unable to open file!");
-                $controllerContent = fread($controllerFile, filesize("./libraries/components/newController.php"));
+                $controllerFile = fopen($templatePath . "ControllerTemplate.php", "r") or die("Unable to open file!");
+                $controllerContent = fread($controllerFile, filesize($templatePath . "ControllerTemplate.php"));
                 fclose($controllerFile);
 
-                $controllerContent = str_replace("CONTROLLER_NAME", $controller, $controllerContent);
+                $controllerContent = str_replace("CONTROLLER_NAME", $controllerName, $controllerContent);
 
-                $newControllerFile = fopen("./app/controllers/" . $controller . ".php", "w") or die("Unable to open file!");
-                fwrite($newControllerFile, $controllerContent);
-                fclose($newControllerFile);
+
+                if (in_array("-m", $argv) || in_array("-a", $argv)) {
+                    $addModelSnippetFile = fopen($templatePath . "AddModelTemplate.php", "r") or die("Unable to open file!");
+                    $addModelSnippet = fread($addModelSnippetFile, filesize($templatePath . "AddModelTemplate.php"));
+                    fclose($addModelSnippetFile);
+
+                    $addModelSnippet = str_replace("MODEL_NAME", $modelName, $addModelSnippet);
+                    $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
+                } else
+                    $controllerContent = str_replace("//ADD_MODEL", "", $controllerContent);
+
+                $controllerFile = fopen("./app/controllers/" . $controllerName . ".php", "w") or die("Unable to open file!");
+                fwrite($controllerFile, $controllerContent);
+                fclose($controllerFile);
+                writeTerminalLine(["bold", "green"], "Created new controller...");
             }
-            if (in_array("-v", $argv) || in_array("-a", $argv)) {
-                writeTerminalLine(["bold", "green"], "Creating new view and folder");
+            if (in_array("-v", $argv)) {
 
-                //Create the view
-                $viewFile = fopen("./libraries/components/newView.php", "r") or die("Unable to open file!");
-                $viewContent = fread($viewFile, filesize("./libraries/components/newView.php"));
+                $viewFile = fopen($templatePath . "ViewTemplate.fx.php", "r") or die("Unable to open file!");
+                $viewContent = fread($viewFile, filesize($templatePath . "ViewTemplate.fx.php"));
                 fclose($viewFile);
 
-                mkdir("./app/views/" . $controller, 0777, true);
+                $viewName = $argv[2];
+                $path = "";
 
-                $newViewFile = fopen("./app/views/" . $controller . "/index.php", "w") or die("Unable to open file!");
-                fwrite($newViewFile, $viewContent);
-                fclose($newViewFile);
+                if (str_contains($viewName, "/")) {
+                    $pathParts = explode("/", $viewName);
+                    $viewName = $pathParts[count($pathParts) - 1];
+                    $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
+                    $path = join("/", $pathParts);
+
+                    mkdir("./public/views/" . $path, 0777, true);
+                }
+
+                $viewContent = str_replace("VIEW_NAME", $viewName, $viewContent);
+
+                $viewFile = fopen(__DIR__ . "/public/views/" . $path . (($path != "") ? "/" : "") . $viewName . ".fx.php", "w") or die("Unable to open file!");
+                fwrite($viewFile, $viewContent);
+                fclose($viewFile);
+                writeTerminalLine(["bold", "green"], "Created new view...");
             }
-            if (in_array("-d", $argv)) {
-                writeTerminalLine(["bold", "green"], "Creating new database file");
+            if (in_array("-comp", $argv)) {
 
-                //Create the database
-                $dbFile = fopen("./libraries/components/newDatabaseScript.sql", "r") or die("Unable to open file!");
-                $dbContent = fread($dbFile, filesize("./libraries/components/newDatabaseScript.sql"));
-                fclose($dbFile);
+                $componentFile = fopen($templatePath . "ComponentTemplate.fx.php", "r") or die("Unable to open file!");
+                $componentContent = fread($componentFile, filesize($templatePath . "ComponentTemplate.fx.php"));
+                fclose($componentFile);
 
-                $allDbFiles = glob('./app/db/*.sql');
-                $fileCount = count($allDbFiles) + 1;
-                $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
+                $componentName = $argv[2];
+                $path = "";
 
-                $newDbFile = fopen("./app/db/" . $fileNumber . "_" . $controller . ".sql", "w") or die("Unable to open file!");
-                fwrite($newDbFile, $dbContent);
-                fclose($newDbFile);
+                if (str_contains($componentName, "/")) {
+                    $pathParts = explode("/", $componentName);
+                    $componentName = $pathParts[count($pathParts) - 1];
+                    $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
+                    $path = join("/", $pathParts);
+
+                    mkdir("./public/components/" . $path, 0777, true);
+                }
+
+                $componentContent = str_replace("COMPONENT_NAME", $componentName, $componentContent);
+
+                $componentFile = fopen(__DIR__ . "/public/components/" . $path . (($path != "") ? "/" : "") . $componentName . ".fx.php", "w") or die("Unable to open file!");
+                fwrite($componentFile, $componentContent);
+                fclose($componentFile);
+                writeTerminalLine(["bold", "green"], "Created new component...");
             }
+            // if (in_array("-d", $argv)) {
+            //     writeTerminalLine(["bold", "green"], "Creating new database file");
 
-            writeTerminalLine(["bold", "green"], "Finished task...");
+            //     //Create the database
+            //     $dbFile = fopen("./libraries/components/newDatabaseScript.sql", "r") or die("Unable to open file!");
+            //     $dbContent = fread($dbFile, filesize("./libraries/components/newDatabaseScript.sql"));
+            //     fclose($dbFile);
+
+            //     $allDbFiles = glob('./app/db/*.sql');
+            //     $fileCount = count($allDbFiles) + 1;
+            //     $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
+
+            //     $newDbFile = fopen("./app/db/" . $fileNumber . "_" . $passedName . ".sql", "w") or die("Unable to open file!");
+            //     fwrite($newDbFile, $dbContent);
+            //     fclose($newDbFile);
+            // }
+
             cancelScript();
         }
     } else if (strtoupper($argv[1]) == "DATABASE") {
@@ -215,6 +263,6 @@ function removeAllTerminalStyles()
 
 function cancelScript($message = "")
 {
-    echo TS_Reset . "\n\n";
+    echo TS_Reset . "\n";
     exit();
 }
