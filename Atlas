@@ -233,7 +233,7 @@ if (strtoupper($argv[1]) == "CREATE") {
 } else if (strtoupper($argv[1]) == "LOCALHOST") {
     include_once 'config/config.php';
 
-    $server = DB_HOST . PORT;
+    $server = DB_HOST . ":" . PORT;
 
     removeAllTerminalStyles();
     shell_exec(sprintf('php -S %s router.php', $server) . " -c app/config/php.ini");
