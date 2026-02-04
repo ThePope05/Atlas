@@ -25,221 +25,223 @@ $terminalStyles = [
     "hidden" => "\033[8m",
 ];
 
-if (isset($argv[1])) {
-    if (strtoupper($argv[1]) == "CREATE") {
-        if (isset($argv[2])) {
-            $templatePath = __DIR__ . "/libraries/classes/templates/";
+if (!isset($argv[1]))
+    exit();
 
-            $passedName = $argv[2];
+if (strtoupper($argv[1]) == "CREATE") {
+    if (isset($argv[2])) {
+        $templatePath = __DIR__ . "/libraries/classes/templates/";
+
+        $passedName = $argv[2];
+
+        if (in_array("-m", $argv) || in_array("-a", $argv)) {
+            $modelName = $argv[2] . "Model";
+
+            $modelFile = fopen($templatePath . "ModelTemplate.php", "r") or die("Unable to open file!");
+            $modelContent = fread($modelFile, filesize($templatePath . "ModelTemplate.php"));
+            fclose($modelFile);
+
+            $modelContent = str_replace("MODEL_NAME", $modelName, $modelContent);
+
+            $modelFile = fopen("./app/models/" . $modelName . ".php", "w") or die("Unable to open file!");
+            fwrite($modelFile, $modelContent);
+            fclose($modelFile);
+            writeTerminalLine(["bold", "green"], "Created new model...");
+        }
+        if (in_array("-c", $argv) || in_array("-a", $argv)) {
+            $modelName = $argv[2] . "Model";
+            $controllerName = $passedName . "Controller";
+
+            $controllerFile = fopen($templatePath . "ControllerTemplate.php", "r") or die("Unable to open file!");
+            $controllerContent = fread($controllerFile, filesize($templatePath . "ControllerTemplate.php"));
+            fclose($controllerFile);
+
+            $controllerContent = str_replace("CONTROLLER_NAME", $controllerName, $controllerContent);
+
 
             if (in_array("-m", $argv) || in_array("-a", $argv)) {
-                $modelName = $argv[2] . "Model";
+                $addModelSnippetFile = fopen($templatePath . "AddModelTemplate.php", "r") or die("Unable to open file!");
+                $addModelSnippet = fread($addModelSnippetFile, filesize($templatePath . "AddModelTemplate.php"));
+                fclose($addModelSnippetFile);
 
-                $modelFile = fopen($templatePath . "ModelTemplate.php", "r") or die("Unable to open file!");
-                $modelContent = fread($modelFile, filesize($templatePath . "ModelTemplate.php"));
-                fclose($modelFile);
+                $addModelSnippet = str_replace("MODEL_NAME", $modelName, $addModelSnippet);
+                $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
+            } else
+                $controllerContent = str_replace("//ADD_MODEL", "", $controllerContent);
 
-                $modelContent = str_replace("MODEL_NAME", $modelName, $modelContent);
-
-                $modelFile = fopen("./app/models/" . $modelName . ".php", "w") or die("Unable to open file!");
-                fwrite($modelFile, $modelContent);
-                fclose($modelFile);
-                writeTerminalLine(["bold", "green"], "Created new model...");
-            }
-            if (in_array("-c", $argv) || in_array("-a", $argv)) {
-                $modelName = $argv[2] . "Model";
-                $controllerName = $passedName . "Controller";
-
-                $controllerFile = fopen($templatePath . "ControllerTemplate.php", "r") or die("Unable to open file!");
-                $controllerContent = fread($controllerFile, filesize($templatePath . "ControllerTemplate.php"));
-                fclose($controllerFile);
-
-                $controllerContent = str_replace("CONTROLLER_NAME", $controllerName, $controllerContent);
-
-
-                if (in_array("-m", $argv) || in_array("-a", $argv)) {
-                    $addModelSnippetFile = fopen($templatePath . "AddModelTemplate.php", "r") or die("Unable to open file!");
-                    $addModelSnippet = fread($addModelSnippetFile, filesize($templatePath . "AddModelTemplate.php"));
-                    fclose($addModelSnippetFile);
-
-                    $addModelSnippet = str_replace("MODEL_NAME", $modelName, $addModelSnippet);
-                    $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
-                } else
-                    $controllerContent = str_replace("//ADD_MODEL", "", $controllerContent);
-
-                $controllerFile = fopen("./app/controllers/" . $controllerName . ".php", "w") or die("Unable to open file!");
-                fwrite($controllerFile, $controllerContent);
-                fclose($controllerFile);
-                writeTerminalLine(["bold", "green"], "Created new controller...");
-            }
-            if (in_array("-v", $argv)) {
-
-                $viewFile = fopen($templatePath . "ViewTemplate.fx.php", "r") or die("Unable to open file!");
-                $viewContent = fread($viewFile, filesize($templatePath . "ViewTemplate.fx.php"));
-                fclose($viewFile);
-
-                $viewName = $argv[2];
-                $path = "";
-
-                if (str_contains($viewName, "/")) {
-                    $pathParts = explode("/", $viewName);
-                    $viewName = $pathParts[count($pathParts) - 1];
-                    $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
-                    $path = join("/", $pathParts);
-
-                    mkdir("./public/views/" . $path, 0777, true);
-                }
-
-                $viewContent = str_replace("VIEW_NAME", $viewName, $viewContent);
-
-                $viewFile = fopen(__DIR__ . "/public/views/" . $path . (($path != "") ? "/" : "") . $viewName . ".fx.php", "w") or die("Unable to open file!");
-                fwrite($viewFile, $viewContent);
-                fclose($viewFile);
-                writeTerminalLine(["bold", "green"], "Created new view...");
-            }
-            if (in_array("-comp", $argv)) {
-
-                $componentFile = fopen($templatePath . "ComponentTemplate.fx.php", "r") or die("Unable to open file!");
-                $componentContent = fread($componentFile, filesize($templatePath . "ComponentTemplate.fx.php"));
-                fclose($componentFile);
-
-                $componentName = $argv[2];
-                $path = "";
-
-                if (str_contains($componentName, "/")) {
-                    $pathParts = explode("/", $componentName);
-                    $componentName = $pathParts[count($pathParts) - 1];
-                    $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
-                    $path = join("/", $pathParts);
-
-                    mkdir("./public/components/" . $path, 0777, true);
-                }
-
-                $componentContent = str_replace("COMPONENT_NAME", $componentName, $componentContent);
-
-                $componentFile = fopen(__DIR__ . "/public/components/" . $path . (($path != "") ? "/" : "") . $componentName . ".fx.php", "w") or die("Unable to open file!");
-                fwrite($componentFile, $componentContent);
-                fclose($componentFile);
-                writeTerminalLine(["bold", "green"], "Created new component...");
-            }
-            if (in_array("-d", $argv)) {
-                $dbName = $argv[2];
-
-                //Create the database
-                $dbFile = fopen($templatePath . "DatabaseTemplate.sql", "r") or die("Unable to open file!");
-                $dbContent = fread($dbFile, filesize($templatePath . "DatabaseTemplate.sql"));
-                fclose($dbFile);
-
-                $dbContent = str_replace("TABLE_NAME", $dbName, $dbContent);
-
-                $allDbFiles = glob('./app/db/*.sql');
-                $fileCount = count($allDbFiles) + 1;
-                $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
-
-                $newDbFile = fopen("./app/db/" . $fileNumber . "_" . $passedName . ".sql", "w") or die("Unable to open file!");
-                fwrite($newDbFile, $dbContent);
-                fclose($newDbFile);
-                writeTerminalLine(["bold", "green"], "Created new database file...");
-            }
-
-            cancelScript();
+            $controllerFile = fopen("./app/controllers/" . $controllerName . ".php", "w") or die("Unable to open file!");
+            fwrite($controllerFile, $controllerContent);
+            fclose($controllerFile);
+            writeTerminalLine(["bold", "green"], "Created new controller...");
         }
-    } else if (strtoupper($argv[1]) == "DATABASE") {
-        writeTerminalLine(["bold", "green"], "Executing database");
+        if (in_array("-v", $argv)) {
 
-        require_once './config/config.php';
+            $viewFile = fopen($templatePath . "ViewTemplate.fx.php", "r") or die("Unable to open file!");
+            $viewContent = fread($viewFile, filesize($templatePath . "ViewTemplate.fx.php"));
+            fclose($viewFile);
 
-        $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME;
+            $viewName = $argv[2];
+            $path = "";
 
-        try {
-            $pdo = new PDO($dsn, DB_USER, DB_PASS);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            if (str_contains($viewName, "/")) {
+                $pathParts = explode("/", $viewName);
+                $viewName = $pathParts[count($pathParts) - 1];
+                $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
+                $path = join("/", $pathParts);
 
-            writeTerminalLine(["bold", "green"], "Connected to database");
-
-            if (!isset($argv[2])) {
-                writeTerminalLine(["bold", "yellow"], "Database already exists, this could remove all data. Proceed? (y/n):");
-
-                $proceed = readline('');
-
-                if ($proceed == 'y') {
-                    writeTerminalLine(["bold", "green"], "Proceeding...");
-                } else {
-                    cancelScript();
-                }
+                mkdir("./public/views/" . $path, 0777, true);
             }
-        } catch (PDOException $e) {
-            writeTerminalLine(["bold", "red"], "Connection failed: " . $e->getMessage());
-            writeTerminalLine(["bold", "yellow"], "Possible database creation required");
 
-            writeTerminalLine(["bold", "yellow"], "Do you want to create database? (y/n):");
-            $createDb = readline('');
+            $viewContent = str_replace("VIEW_NAME", $viewName, $viewContent);
 
-            if ($createDb == 'y') {
-                try {
-                    $pdo = new PDO('mysql:host=' . DB_HOST, DB_USER, DB_PASS);
-                    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $viewFile = fopen(__DIR__ . "/public/views/" . $path . (($path != "") ? "/" : "") . $viewName . ".fx.php", "w") or die("Unable to open file!");
+            fwrite($viewFile, $viewContent);
+            fclose($viewFile);
+            writeTerminalLine(["bold", "green"], "Created new view...");
+        }
+        if (in_array("-comp", $argv)) {
 
-                    $sql = 'CREATE DATABASE ' . DB_NAME . '; USE ' . DB_NAME;
-                    $pdo->exec($sql);
+            $componentFile = fopen($templatePath . "ComponentTemplate.fx.php", "r") or die("Unable to open file!");
+            $componentContent = fread($componentFile, filesize($templatePath . "ComponentTemplate.fx.php"));
+            fclose($componentFile);
 
-                    writeTerminalLine(["bold", "green"], "Database created successfully");
-                } catch (PDOException $e) {
-                    writeTerminalLine(["bold", "red"], "Database creation failed: " . $e->getMessage());
-                    cancelScript();
-                }
+            $componentName = $argv[2];
+            $path = "";
+
+            if (str_contains($componentName, "/")) {
+                $pathParts = explode("/", $componentName);
+                $componentName = $pathParts[count($pathParts) - 1];
+                $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
+                $path = join("/", $pathParts);
+
+                mkdir("./public/components/" . $path, 0777, true);
+            }
+
+            $componentContent = str_replace("COMPONENT_NAME", $componentName, $componentContent);
+
+            $componentFile = fopen(__DIR__ . "/public/components/" . $path . (($path != "") ? "/" : "") . $componentName . ".fx.php", "w") or die("Unable to open file!");
+            fwrite($componentFile, $componentContent);
+            fclose($componentFile);
+            writeTerminalLine(["bold", "green"], "Created new component...");
+        }
+        if (in_array("-d", $argv)) {
+            $dbName = $argv[2];
+
+            //Create the database
+            $dbFile = fopen($templatePath . "DatabaseTemplate.sql", "r") or die("Unable to open file!");
+            $dbContent = fread($dbFile, filesize($templatePath . "DatabaseTemplate.sql"));
+            fclose($dbFile);
+
+            $dbContent = str_replace("TABLE_NAME", $dbName, $dbContent);
+
+            $allDbFiles = glob('./app/db/*.sql');
+            $fileCount = count($allDbFiles) + 1;
+            $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
+
+            $newDbFile = fopen("./app/db/" . $fileNumber . "_" . $passedName . ".sql", "w") or die("Unable to open file!");
+            fwrite($newDbFile, $dbContent);
+            fclose($newDbFile);
+            writeTerminalLine(["bold", "green"], "Created new database file...");
+        }
+
+        cancelScript();
+    }
+} else if (strtoupper($argv[1]) == "DATABASE") {
+    writeTerminalLine(["bold", "green"], "Executing database");
+
+    require_once './config/config.php';
+
+    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME;
+
+    try {
+        $pdo = new PDO($dsn, DB_USER, DB_PASS);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        writeTerminalLine(["bold", "green"], "Connected to database");
+
+        if (!isset($argv[2])) {
+            writeTerminalLine(["bold", "yellow"], "Database already exists, this could remove all data. Proceed? (y/n):");
+
+            $proceed = readline('');
+
+            if ($proceed == 'y') {
+                writeTerminalLine(["bold", "green"], "Proceeding...");
             } else {
                 cancelScript();
             }
         }
+    } catch (PDOException $e) {
+        writeTerminalLine(["bold", "red"], "Connection failed: " . $e->getMessage());
+        writeTerminalLine(["bold", "yellow"], "Possible database creation required");
 
-        if (isset($argv[2])) {
-            $sqlFile = glob('./app/db/' . $argv[2] . '*.sql');
-            $sql = file_get_contents($sqlFile[0]);
-            $pdo->exec($sql);
+        writeTerminalLine(["bold", "yellow"], "Do you want to create database? (y/n):");
+        $createDb = readline('');
 
-            $cleanName = str_replace('.sql', '', $sqlFile[0]);
-            $cleanName = str_replace('./app/db/', '', $cleanName);
-            writeTerminalLine(["bold", "green"], $cleanName . ' executed successfully' . PHP_EOL);
-            cancelScript();
-        } else {
-            $allSqlFiles = glob('./app/db/*.sql');
+        if ($createDb == 'y') {
+            try {
+                $pdo = new PDO('mysql:host=' . DB_HOST, DB_USER, DB_PASS);
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-            foreach ($allSqlFiles as $sqlFile) {
-                $sql = file_get_contents($sqlFile);
+                $sql = 'CREATE DATABASE ' . DB_NAME . '; USE ' . DB_NAME;
                 $pdo->exec($sql);
 
-                $cleanName = str_replace('.sql', '', $sqlFile);
-                $cleanName = str_replace('./app/db/', '', $cleanName);
-                writeTerminalLine(["bold", "green"], $cleanName . ' executed successfully' . PHP_EOL);
+                writeTerminalLine(["bold", "green"], "Database created successfully");
+            } catch (PDOException $e) {
+                writeTerminalLine(["bold", "red"], "Database creation failed: " . $e->getMessage());
+                cancelScript();
             }
-
-            writeTerminalLine(["bold", "green"], "Finished task...");
+        } else {
             cancelScript();
         }
-    } else if (strtoupper($argv[1]) == "LOCALHOST") {
-        include_once 'config/config.php';
+    }
 
-        $server = "0.0.0.0:" . PORT;
+    if (isset($argv[2])) {
+        $sqlFile = glob('./app/db/' . $argv[2] . '*.sql');
+        $sql = file_get_contents($sqlFile[0]);
+        $pdo->exec($sql);
 
-        removeAllTerminalStyles();
-        shell_exec(sprintf('php -S %s router.php', $server) . " -c app/config/php.ini");
-    } else if (strtoupper($argv[1]) == "ROUTES:LIST") {
-        $router = new Router();
-        $moduleLoader = new ModuleEngine();
-
-        require "./routes.php";
-        $moduleLoader->LoadModules();
-        $router->LogRoutes();
+        $cleanName = str_replace('.sql', '', $sqlFile[0]);
+        $cleanName = str_replace('./app/db/', '', $cleanName);
+        writeTerminalLine(["bold", "green"], $cleanName . ' executed successfully' . PHP_EOL);
+        cancelScript();
     } else {
-        writeTerminalLine(["bold", "red"], "Command not found" . PHP_EOL);
-        writeTerminalLine(["bold", "yellow"], "Available commands:");
-        writeTerminalLine(["bold", "yellow"], " - create -m -c -v -a -d");
-        writeTerminalLine(["bold", "yellow"], " - database [filenumber]");
-        writeTerminalLine(["bold", "yellow"], " - localhost");
+        $allSqlFiles = glob('./app/db/*.sql');
+
+        foreach ($allSqlFiles as $sqlFile) {
+            $sql = file_get_contents($sqlFile);
+            $pdo->exec($sql);
+
+            $cleanName = str_replace('.sql', '', $sqlFile);
+            $cleanName = str_replace('./app/db/', '', $cleanName);
+            writeTerminalLine(["bold", "green"], $cleanName . ' executed successfully' . PHP_EOL);
+        }
+
+        writeTerminalLine(["bold", "green"], "Finished task...");
         cancelScript();
     }
+} else if (strtoupper($argv[1]) == "LOCALHOST") {
+    include_once 'config/config.php';
+
+    $server = "0.0.0.0:" . PORT;
+
+    removeAllTerminalStyles();
+    shell_exec(sprintf('php -S %s router.php', $server) . " -c app/config/php.ini");
+} else if (strtoupper($argv[1]) == "ROUTES:LIST") {
+    $router = new Router();
+    $moduleLoader = new ModuleEngine();
+
+    require "./routes.php";
+    $moduleLoader->LoadModules();
+    $router->LogRoutes();
+} else {
+    writeTerminalLine(["bold", "red"], "Command not found" . PHP_EOL);
+    writeTerminalLine(["bold", "yellow"], "Available commands:");
+    writeTerminalLine(["bold", "yellow"], " - create -m -c -v -a -d");
+    writeTerminalLine(["bold", "yellow"], " - database [filenumber]");
+    writeTerminalLine(["bold", "yellow"], " - localhost");
+    cancelScript();
 }
+
 
 function writeTerminalLine($style = [["bold"], "red"], $text = "No Text Specified")
 {
