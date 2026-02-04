@@ -7,6 +7,8 @@ use Libraries\Classes\Mvc\Controller;
 
 class WelcomeController extends Controller
 {
+    protected WelcomeModel $model;
+
     public function __construct()
     {
         $this->model = new WelcomeModel();
@@ -14,8 +16,6 @@ class WelcomeController extends Controller
 
     public function WelcomePage()
     {
-        $allReservations = $this->model->GetAll();
-        //dd($allReservations);
-        $this->view("Welcome", ["reservations" => $allReservations]);
+        $this->view("Welcome");
     }
 }

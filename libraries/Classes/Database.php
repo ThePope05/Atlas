@@ -61,7 +61,6 @@ class Database
             try {
                 $this->statement->execute();
             } catch (Exception $e) {
-                $this->statement->debugDumpParams();
                 throw new Exception("Error Processing Request {$e}", 1);
             }
             return $this->statement->fetchAll(PDO::FETCH_OBJ);
