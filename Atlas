@@ -146,38 +146,38 @@ if (strtoupper($argv[1]) == "CREATE") {
 
         cancelScript();
     }
-} else if (strtoupper($argv[1]) == "DATABASE") {
-    writeTerminalLine(["bold", "green"], "Executing database");
-
+} else if (strtoupper($argv[1]) == "DB") {
     require_once './config/config.php';
+
+    $pdo = new PDO('mysql:host=' . DB_HOST, DB_USER, DB_PASS);
+    $migrationFile = './app/db/.migrations.json';
+    if (in_array("-R", $argv)) {
+        writeTerminalLine(["bold", "yellow"], "This will rebuild/wipe the database, continue? (y):");
+        $proceed = readline('');
+
+        if ($proceed == 'y' || $proceed == '') {
+            $pdo->exec('DROP DATABASE IF EXISTS `' . DB_NAME . '`');
+            $pdo->exec('CREATE DATABASE `' . DB_NAME . '`');
+            $pdo->exec('USE `' . DB_NAME . '`');
+
+
+            file_put_contents($migrationFile, json_encode([]));
+        }
+    }
 
     $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME;
 
     try {
         $pdo = new PDO($dsn, DB_USER, DB_PASS);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        writeTerminalLine(["bold", "green"], "Connected to database");
-
-        if (!isset($argv[2])) {
-            writeTerminalLine(["bold", "yellow"], "Database already exists, this could remove all data. Proceed? (y/n):");
-
-            $proceed = readline('');
-
-            if ($proceed == 'y') {
-                writeTerminalLine(["bold", "green"], "Proceeding...");
-            } else {
-                cancelScript();
-            }
-        }
     } catch (PDOException $e) {
         writeTerminalLine(["bold", "red"], "Connection failed: " . $e->getMessage());
         writeTerminalLine(["bold", "yellow"], "Possible database creation required");
 
-        writeTerminalLine(["bold", "yellow"], "Do you want to create database? (y/n):");
-        $createDb = readline('');
+        writeTerminalLine(["bold", "yellow"], "Do you want to create the database? (y):");
+        $proceed = readline('');
 
-        if ($createDb == 'y') {
+        if ($proceed == 'y' || $proceed == '') {
             try {
                 $pdo = new PDO('mysql:host=' . DB_HOST, DB_USER, DB_PASS);
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -195,34 +195,45 @@ if (strtoupper($argv[1]) == "CREATE") {
         }
     }
 
-    if (isset($argv[2])) {
-        $sqlFile = glob('./app/db/' . $argv[2] . '*.sql');
-        $sql = file_get_contents($sqlFile[0]);
-        $pdo->exec($sql);
+    $executed = loadExecutedMigrations($migrationFile);
 
-        $cleanName = str_replace('.sql', '', $sqlFile[0]);
-        $cleanName = str_replace('./app/db/', '', $cleanName);
-        writeTerminalLine(["bold", "green"], $cleanName . ' executed successfully' . PHP_EOL);
-        cancelScript();
+    if (isset($argv[2]) && $argv[2] != "-R") {
+        $files = glob('./app/db/' . $argv[2] . '*.sql');
     } else {
-        $allSqlFiles = glob('./app/db/*.sql');
+        $files = glob('./app/db/*.sql');
+    }
 
-        foreach ($allSqlFiles as $sqlFile) {
-            $sql = file_get_contents($sqlFile);
-            $pdo->exec($sql);
-
-            $cleanName = str_replace('.sql', '', $sqlFile);
-            $cleanName = str_replace('./app/db/', '', $cleanName);
-            writeTerminalLine(["bold", "green"], $cleanName . ' executed successfully' . PHP_EOL);
-        }
-
-        writeTerminalLine(["bold", "green"], "Finished task...");
+    if (count($files) == count($executed)) {
+        writeTerminalLine(["bold", "green"], 'Nothing to execute...');
         cancelScript();
     }
+
+    foreach ($files as $sqlFile) {
+        $cleanName = basename($sqlFile, '.sql');
+
+        // Skip already executed migrations
+        if (in_array($cleanName, $executed, true) && !in_array("-F", $argv)) {
+            continue;
+        }
+
+        $sql = file_get_contents($sqlFile);
+        $pdo->exec($sql);
+
+        $executed[] = $cleanName;
+
+        writeTerminalLine(
+            ["bold", "green"],
+            $cleanName . ' executed successfully'
+        );
+    }
+
+    saveExecutedMigrations($migrationFile, $executed);
+
+    cancelScript();
 } else if (strtoupper($argv[1]) == "LOCALHOST") {
     include_once 'config/config.php';
 
-    $server = "0.0.0.0:" . PORT;
+    $server = DB_HOST . PORT;
 
     removeAllTerminalStyles();
     shell_exec(sprintf('php -S %s router.php', $server) . " -c app/config/php.ini");
@@ -234,11 +245,12 @@ if (strtoupper($argv[1]) == "CREATE") {
     $moduleLoader->LoadModules();
     $router->LogRoutes();
 } else {
-    writeTerminalLine(["bold", "red"], "Command not found" . PHP_EOL);
+    writeTerminalLine(["bold", "yellow"], "Command not found" . PHP_EOL);
     writeTerminalLine(["bold", "yellow"], "Available commands:");
-    writeTerminalLine(["bold", "yellow"], " - create -m -c -v -a -d");
+    writeTerminalLine(["bold", "yellow"], " - create -m -c -v -comp -a -d");
     writeTerminalLine(["bold", "yellow"], " - database [filenumber]");
     writeTerminalLine(["bold", "yellow"], " - localhost");
+    writeTerminalLine(["bold", "yellow"], " - routes:list");
     cancelScript();
 }
 
@@ -270,4 +282,22 @@ function cancelScript($message = "")
 {
     echo TS_Reset . "\n";
     exit();
+}
+
+function loadExecutedMigrations(string $path): array
+{
+    if (!file_exists($path)) {
+        return [];
+    }
+
+    $content = file_get_contents($path);
+    return json_decode($content, true) ?? [];
+}
+
+function saveExecutedMigrations(string $path, array $migrations): void
+{
+    file_put_contents(
+        $path,
+        json_encode(array_values(array_unique($migrations)), JSON_PRETTY_PRINT)
+    );
 }
