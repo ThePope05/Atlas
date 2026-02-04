@@ -201,8 +201,8 @@ body {
 		.panel::before {
 			position: absolute;
 			left: var(--left);
-			content: "ATLAS ATLAS ATLAS ATLAS";
-			font-size: 70px;
+			content: "ATLAS ATLAS ATLAS ATLAS ATLAS";
+			font-size: 59px;
 			width: max-content;
 			color: #dde9f0;
 		}
@@ -219,24 +219,24 @@ body {
 }
 @keyframes spinning-box {
 	0% {
-		transform: rotateY(0deg) rotateX(10deg);
+		transform: rotateY(0deg) rotateX(20deg);
 	}
 	100% {
-		transform: rotateY(-359deg) rotateX(10deg);
+		transform: rotateY(-359deg) rotateX(20deg);
 	}
 }
 
 @keyframes shadow-bounce {
 	0% {
-		transform: rotateX(-90deg) rotateX(-10deg) translateY(50px)
+		transform: rotateX(-90deg) rotateX(-20deg) translateY(50px)
 			translateZ(20px);
 	}
 	50% {
-		transform: rotateX(-90deg) rotateX(-10deg) translateY(50px)
+		transform: rotateX(-90deg) rotateX(-20deg) translateY(50px)
 			translateZ(60px);
 	}
 	100% {
-		transform: rotateX(-90deg) rotateX(-10deg) translateY(50px)
+		transform: rotateX(-90deg) rotateX(-20deg) translateY(50px)
 			translateZ(20px);
 	}
 }
