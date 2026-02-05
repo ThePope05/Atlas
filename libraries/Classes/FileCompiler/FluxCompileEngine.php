@@ -79,6 +79,18 @@ class FluxCompileEngine extends CompileEngine
             $contents
         );
 
+        $contents = preg_replace(
+            '/@if\s*\((.*)\)/',
+            '<?php if ($1): ?>',
+            $contents
+        );
+
+        $contents = preg_replace(
+            '/@endif/',
+            '<?php endif; ?>',
+            $contents
+        );
+
         file_put_contents($compiled, $contents);
     }
 }
