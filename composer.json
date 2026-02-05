@@ -6,6 +6,7 @@
 			"Libraries\\Classes\\ModuleLoader\\": "libraries/Classes/ModuleLoader/",
 			"Libraries\\Classes\\Routing\\": "libraries/Classes/Routing/",
 			"Libraries\\Classes\\Mvc\\": "libraries/Classes/Mvc",
+			"Libraries\\Classes\\Database\\": "libraries/Classes/Database",
 			"Libraries\\Classes\\": "libraries/classes/",
 			"App\\Controllers\\": "app/Controllers/",
 			"App\\Models\\": "app/Models/",
