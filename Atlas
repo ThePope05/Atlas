@@ -146,12 +146,18 @@ if (strtoupper($argv[1]) == "CREATE") {
 
         cancelScript();
     }
-} else if (strtoupper($argv[1]) == "DB") {
+} else if (strtoupper($argv[1]) == "CACHE:CLEAR") {
+    $files = glob('./public/cache/compiled/*');
+
+    foreach ($files as $file) {
+        unlink($file);
+    }
+} else if (str_starts_with(strtoupper($argv[1]), "DB")) {
     require_once './config/config.php';
 
     $pdo = new PDO('mysql:host=' . DB_HOST, DB_USER, DB_PASS);
     $migrationFile = './app/db/.migrations.json';
-    if (in_array("-R", $argv)) {
+    if (str_ends_with(strtoupper($argv[1]), ":REFRESH")) {
         writeTerminalLine(["bold", "yellow"], "This will rebuild/wipe the database, continue? (y):");
         $proceed = readline('');
 
@@ -197,13 +203,13 @@ if (strtoupper($argv[1]) == "CREATE") {
 
     $executed = loadExecutedMigrations($migrationFile);
 
-    if (isset($argv[2]) && $argv[2] != "-R") {
+    if (isset($argv[2])) {
         $files = glob('./app/db/' . $argv[2] . '*.sql');
     } else {
         $files = glob('./app/db/*.sql');
     }
 
-    if (count($files) == count($executed)) {
+    if (count($files) == count($executed) && !str_ends_with(strtoupper($argv[1]), ":FORCE")) {
         writeTerminalLine(["bold", "green"], 'Nothing to execute...');
         cancelScript();
     }
@@ -212,7 +218,7 @@ if (strtoupper($argv[1]) == "CREATE") {
         $cleanName = basename($sqlFile, '.sql');
 
         // Skip already executed migrations
-        if (in_array($cleanName, $executed, true) && !in_array("-F", $argv)) {
+        if (in_array($cleanName, $executed, true) && !str_ends_with(strtoupper($argv[1]), ":FORCE")) {
             continue;
         }
 
