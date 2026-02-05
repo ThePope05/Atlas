@@ -9,6 +9,7 @@ To use Atlas simply clone the repository, and run:
 ```cmd
 composer dumpautoload
 ```
+
 ```cmd
 npm install
 ```
@@ -27,52 +28,68 @@ To local host run:
 ```cmd
 php Atlas localhost
 ```
+
 ```cmd
 npm run dev
 ```
 
 ## 💻 Atlas commands for DEV
 
-
 ```cmd
 php Atlas localhost
 ```
 
 To auto generate Models, Views, Controllers, Database files, or Components use:
+
 ```cmd
 php Atlas create [name]
 ```
 
 In combination with one or multiple of the following:
+
 ```cmd
 -m -v -c -d -comp
 ```
+
 The -v and -comp commands can contains "/" to automatically make a folder for the view or component.
 This doesn't work for controllers and models.
+
 - -m = Model
 - -v = View
 - -c = Controller
 - -d = Database file
 - -comp = Component
-<hr>
+      <hr>
 
 ```cmd
 php Atlas Route:list
 ```
 
+To clear all compiled flux files run:
+
+```cmd
+php Atlas Cache:clear
+```
+
 To run all database files in app/db/ use:
+
 ```cmd
 php Atlas db
 ```
+
 To run specific files add the number of the file to the end of the command.
-Atlas will keep track of the files that have been run. To rerun all files add:
+Atlas will keep track of the files that have been run. To rerun all files run:
+
 ```cmd
--R
+php Atlas db:refresh
 ```
-And to force run a file use:
+
+And to force run a file use (the file number is optional, including no file number will force run all files):
+
 ```cmd
--F
+php Atlas db:force [file number]
 ```
+
 <br>
 <br>
 <br>
