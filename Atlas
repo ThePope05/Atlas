@@ -58,6 +58,29 @@ if (strtoupper($argv[1]) == "CREATE") {
             }
 
             scanCopyDir(__DIR__ . "/modules/$passedName", __DIR__ . "/libraries/Classes/Templates/ModuleTemplate", $passedName);
+
+            $moduleJsonPath = __DIR__ . "/config/modules.json";
+            $existingModules = [];
+            if (file_exists($moduleJsonPath)) {
+                $content = file_get_contents($moduleJsonPath);
+                $existingModules = json_decode($content, true);
+            }
+
+            $newModule = ["name" => $passedName, "version" => "0.1", "enabled" => true];
+
+            $existingModules[] = $newModule;
+
+            $unique_array = [];
+            foreach ($existingModules as $element) {
+                $hash = $element["name"];
+                $unique_array[$hash] = $element;
+            }
+            $result = array_values($unique_array);
+
+            file_put_contents(
+                $moduleJsonPath,
+                json_encode($result, JSON_PRETTY_PRINT)
+            );
         }
         if (in_array("-c", $argv) || in_array("-a", $argv)) {
             $modelName = $argv[2] . "Model";

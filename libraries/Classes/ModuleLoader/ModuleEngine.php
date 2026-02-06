@@ -9,7 +9,7 @@ class ModuleEngine
         $config = json_decode(file_get_contents(__DIR__ . '/../../../config/modules.json'), true);
         $modules = null;
 
-        foreach ($config['modules'] as $data) {
+        foreach ($config as $data) {
             if (!$data['enabled']) continue;
             $name = $data["name"];
 

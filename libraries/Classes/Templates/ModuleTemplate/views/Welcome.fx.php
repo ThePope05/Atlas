@@ -10,7 +10,7 @@
 </head>
 
 <body>
-    @component('ModuleHeader', 'ModuleTest')
+    @component('ModuleHeader', 'MODULE_NAME')
 </body>
 
 </html>

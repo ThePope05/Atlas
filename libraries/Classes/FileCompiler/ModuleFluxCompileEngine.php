@@ -21,7 +21,7 @@ class ModuleFluxCompileEngine extends FluxCompileEngine
         $config = json_decode(file_get_contents(__DIR__ . '/../../../config/modules.json'), true);
         $result = false;
 
-        foreach ($config['modules'] as $data) {
+        foreach ($config as $data) {
             if (!$data['enabled']) continue;
             $result = $this->ModuleName == $data["name"];
 
