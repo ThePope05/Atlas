@@ -1,8 +1,8 @@
 {
-	"dependencies": {
-		"sass": "^1.97.3"
-	},
 	"scripts": {
-		"dev": "sass --watch public/scss:public/css"
+		"dev": "node libraries/classes/FileCompiler/sass-watch.js"
+	},
+	"devDependencies": {
+		"sass": "^1.97.3"
 	}
 }
