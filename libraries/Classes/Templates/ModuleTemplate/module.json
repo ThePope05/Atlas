@@ -1,7 +1,7 @@
 {
-	"name": "ModuleTest",
+	"name": "MODULE_NAME",
 	"version": "1.0.0",
-	"main": "ModuleTest",
+	"main": "MODULE_NAME",
 	"routes": true,
 	"migrations": false
 }

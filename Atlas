@@ -48,6 +48,17 @@ if (strtoupper($argv[1]) == "CREATE") {
             fclose($modelFile);
             writeTerminalLine(["bold", "green"], "Created new model...");
         }
+        if (in_array("-mod", $argv)) {
+            $passedName = ucfirst($passedName) . "Module";
+            if (is_dir(__DIR__ . "/modules/$passedName")) {
+                writeTerminalLine(["bold", "red"], "Module with this name already exists..");
+                cancelScript();
+            } else {
+                mkdir(__DIR__ . "/modules/$passedName");
+            }
+
+            scanCopyDir(__DIR__ . "/modules/$passedName", __DIR__ . "/libraries/Classes/Templates/ModuleTemplate", $passedName);
+        }
         if (in_array("-c", $argv) || in_array("-a", $argv)) {
             $modelName = $argv[2] . "Model";
             $controllerName = $passedName . "Controller";
@@ -261,7 +272,7 @@ if (strtoupper($argv[1]) == "CREATE") {
 }
 
 
-function writeTerminalLine($style = [["bold"], "red"], $text = "No Text Specified")
+function writeTerminalLine($style = ["bold", "red"], $text = "No Text Specified")
 {
     global $terminalColors;
     global $terminalStyles;
@@ -306,4 +317,49 @@ function saveExecutedMigrations(string $path, array $migrations): void
         $path,
         json_encode(array_values(array_unique($migrations)), JSON_PRETTY_PRINT)
     );
+}
+
+function scanCopyDir($dir = "", $templateDir = "", $moduleName)
+{
+
+    $allFiles = scandir($templateDir);
+
+    foreach ($allFiles as $file) {
+        if ($file != "." && $file != "..") {
+            if (!is_dir($templateDir . "/" . $file)) {
+                $fileCopy = copyModuleFile($templateDir, $dir, $file, $moduleName);
+                if ($fileCopy) {
+                    writeTerminalLine(["bold", "green"], "Created " . $file);
+                } else {
+                    writeTerminalLine(["bold", "red"], "Failed to create " . $file);
+                    unlink($dir);
+                    cancelScript();
+                }
+            } else {
+                $newDir = mkdir($dir . "/" . $file, 0777);
+                if ($newDir) {
+                    writeTerminalLine(["bold", "green"], "Created " . $file);
+
+                    scanCopyDir($dir . "/" . $file . "/", $templateDir . "/" . $file . "/", $moduleName);
+                } else {
+                    writeTerminalLine(["bold", "red"], "Failed to create " . $file);
+                    unlink($dir);
+                    cancelScript();
+                }
+            }
+        }
+    }
+}
+
+
+function copyModuleFile($from, $to, $fileName, $moduleName)
+{
+    $newFileName = str_replace("MODULE_NAME", $moduleName, $fileName);
+    $copiedFile = copy($from . "/" . $fileName, $to . "/" . $newFileName);
+
+    $copiedFileContent = file_get_contents($to . "/" . $newFileName);
+    $copiedFileContent = str_replace("MODULE_NAME", $moduleName, $copiedFileContent);
+    file_put_contents($to . "/" . $newFileName, $copiedFileContent);
+
+    return $copiedFile;
 }

@@ -59,7 +59,8 @@ This doesn't work for controllers and models.
 - -c = Controller
 - -d = Database file
 - -comp = Component
-      <hr>
+- -mod = Module
+  <hr>
 
 ```cmd
 php Atlas Route:list

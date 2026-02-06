@@ -1,8 +1,8 @@
 <?php
 
-namespace Modules\ModuleTest;
+namespace Modules\MODULE_NAME;
 
-class ModuleTest
+class MODULE_NAME
 {
     public static function Register()
     {
