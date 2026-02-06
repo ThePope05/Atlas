@@ -48,7 +48,7 @@ php Atlas create [name]
 In combination with one or multiple of the following:
 
 ```cmd
--m -v -c -d -comp
+-m -v -c -d -comp -mod
 ```
 
 The -v and -comp commands can contains "/" to automatically make a folder for the view or component.
