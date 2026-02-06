@@ -23,6 +23,18 @@ class QueryBuilder
         $this->pdo = $pdo;
     }
 
+    protected function clearQueryBuilderData(): void
+    {
+        $this->table = "";
+        $this->columns = ['*'];
+        $this->wheres = [];
+        $this->bindings = [];
+        $this->limit = null;
+        $this->offset = null;
+        $this->orders = [];
+        $this->joins = [];
+    }
+
     public function table(string $table): self
     {
         $this->table = $table;
@@ -75,13 +87,16 @@ class QueryBuilder
     {
         $stmt = $this->pdo->prepare($this->toSql());
         $stmt->execute($this->bindings);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->clearQueryBuilderData();
+        return $result;
     }
 
     public function first(): ?array
     {
         $this->limit(1);
         $results = $this->get();
+        $this->clearQueryBuilderData();
         return $results[0] ?? null;
     }
 
@@ -95,8 +110,10 @@ class QueryBuilder
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($this->bindings);
+        $result = (int) $stmt->fetchColumn();
+        $this->clearQueryBuilderData();
 
-        return (int) $stmt->fetchColumn();
+        return $result;
     }
 
     public function join(
@@ -155,8 +172,11 @@ class QueryBuilder
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
+        $result = (int) $this->pdo->lastInsertId();
 
-        return (int) $this->pdo->lastInsertId();
+        $this->clearQueryBuilderData();
+
+        return $result;
     }
 
     public function update(array $data): int
@@ -183,8 +203,10 @@ class QueryBuilder
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($bindings);
+        $result =  $stmt->rowCount();
+        $this->clearQueryBuilderData();
 
-        return $stmt->rowCount();
+        return $result;
     }
 
     public function delete(): int
@@ -201,8 +223,10 @@ class QueryBuilder
 
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($this->bindings);
+        $result = $stmt->rowCount();
+        $this->clearQueryBuilderData();
 
-        return $stmt->rowCount();
+        return $result;
     }
 
     protected function toSql(): string
