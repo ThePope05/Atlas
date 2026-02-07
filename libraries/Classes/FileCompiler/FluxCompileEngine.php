@@ -8,6 +8,12 @@ class FluxCompileEngine extends CompileEngine
 {
     public function TryGetFile(string $filename, array $data = [])
     {
+        if (!is_dir(__DIR__ . "/../../../public/cache"))
+            mkdir(__DIR__ . "/../../../public/cache");
+
+        if (!is_dir(__DIR__ . "/../../../public/cache/compiled"))
+            mkdir(__DIR__ . "/../../../public/cache/compiled");
+
         $source = $this->getReadPath($filename);
 
         $compiled = $this->cachePath . md5($source) . '.php';

@@ -161,6 +161,9 @@ if (strtoupper($argv[1]) == "CREATE") {
         if (in_array("-d", $argv)) {
             $dbName = $argv[2];
 
+            if (!is_dir(__DIR__ . "/app/db"))
+                mkdir(__DIR__ . "/app/db");
+
             //Create the database
             $dbFile = fopen($templatePath . "DatabaseTemplate.sql", "r") or die("Unable to open file!");
             $dbContent = fread($dbFile, filesize($templatePath . "DatabaseTemplate.sql"));
