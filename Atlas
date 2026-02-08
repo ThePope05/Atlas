@@ -25,6 +25,14 @@ $terminalStyles = [
     "hidden" => "\033[8m",
 ];
 
+$pluralExceptions = [
+    "s",
+    "x",
+    "z",
+    "ch",
+    "sh"
+];
+
 if (!isset($argv[1]))
     exit();
 
@@ -33,15 +41,31 @@ if (strtoupper($argv[1]) == "CREATE") {
         $templatePath = __DIR__ . "/libraries/classes/templates/";
 
         $passedName = $argv[2];
+        $controllerName = ucfirst($passedName) . "Controller";
+        $modelName = ucfirst($passedName) . "Model";
+        $moduleName = ucfirst($passedName) . "Module";
+        $viewName = ucfirst($passedName);
+        $componentName = $passedName;
+        $dbName = strtolower($passedName);
+
+        $plurarizer = "s";
+        foreach ($pluralExceptions as $exception) {
+            if (str_ends_with($dbName, $exception)) {
+                $plurarizer = "es";
+                break;
+            }
+        }
+        $dbName = $dbName . $plurarizer;
+
 
         if (in_array("-m", $argv) || in_array("-a", $argv)) {
-            $modelName = $argv[2] . "Model";
 
             $modelFile = fopen($templatePath . "ModelTemplate.php", "r") or die("Unable to open file!");
             $modelContent = fread($modelFile, filesize($templatePath . "ModelTemplate.php"));
             fclose($modelFile);
 
             $modelContent = str_replace("MODEL_NAME", $modelName, $modelContent);
+            $modelContent = str_replace("TABLE_NAME", $dbName, $modelContent);
 
             $modelFile = fopen("./app/models/" . $modelName . ".php", "w") or die("Unable to open file!");
             fwrite($modelFile, $modelContent);
@@ -49,15 +73,14 @@ if (strtoupper($argv[1]) == "CREATE") {
             writeTerminalLine(["bold", "green"], "Created new model...");
         }
         if (in_array("-mod", $argv)) {
-            $passedName = ucfirst($passedName) . "Module";
-            if (is_dir(__DIR__ . "/modules/$passedName")) {
+            if (is_dir(__DIR__ . "/modules/$moduleName")) {
                 writeTerminalLine(["bold", "red"], "Module with this name already exists..");
                 cancelScript();
             } else {
-                mkdir(__DIR__ . "/modules/$passedName");
+                mkdir(__DIR__ . "/modules/$moduleName");
             }
 
-            scanCopyDir(__DIR__ . "/modules/$passedName", __DIR__ . "/libraries/Classes/Templates/ModuleTemplate", $passedName);
+            scanCopyDir(__DIR__ . "/modules/$moduleName", __DIR__ . "/libraries/Classes/Templates/ModuleTemplate", $moduleName);
 
             $moduleJsonPath = __DIR__ . "/config/modules.json";
             $existingModules = [];
@@ -66,7 +89,7 @@ if (strtoupper($argv[1]) == "CREATE") {
                 $existingModules = json_decode($content, true);
             }
 
-            $newModule = ["name" => $passedName, "version" => "0.1", "enabled" => true];
+            $newModule = ["name" => $moduleName, "version" => "0.1", "enabled" => true];
 
             $existingModules[] = $newModule;
 
@@ -83,25 +106,21 @@ if (strtoupper($argv[1]) == "CREATE") {
             );
         }
         if (in_array("-c", $argv) || in_array("-a", $argv)) {
-            $modelName = $argv[2] . "Model";
-            $controllerName = $passedName . "Controller";
-
             $controllerFile = fopen($templatePath . "ControllerTemplate.php", "r") or die("Unable to open file!");
             $controllerContent = fread($controllerFile, filesize($templatePath . "ControllerTemplate.php"));
             fclose($controllerFile);
 
             $controllerContent = str_replace("CONTROLLER_NAME", $controllerName, $controllerContent);
 
-
+            $addModelSnippet = "";
             if (in_array("-m", $argv) || in_array("-a", $argv)) {
                 $addModelSnippetFile = fopen($templatePath . "AddModelTemplate.php", "r") or die("Unable to open file!");
                 $addModelSnippet = fread($addModelSnippetFile, filesize($templatePath . "AddModelTemplate.php"));
                 fclose($addModelSnippetFile);
 
                 $addModelSnippet = str_replace("MODEL_NAME", $modelName, $addModelSnippet);
-                $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
-            } else
-                $controllerContent = str_replace("//ADD_MODEL", "", $controllerContent);
+            }
+            $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
 
             $controllerFile = fopen("./app/controllers/" . $controllerName . ".php", "w") or die("Unable to open file!");
             fwrite($controllerFile, $controllerContent);
@@ -113,8 +132,6 @@ if (strtoupper($argv[1]) == "CREATE") {
             $viewFile = fopen($templatePath . "ViewTemplate.fx.php", "r") or die("Unable to open file!");
             $viewContent = fread($viewFile, filesize($templatePath . "ViewTemplate.fx.php"));
             fclose($viewFile);
-
-            $viewName = $argv[2];
             $path = "";
 
             if (str_contains($viewName, "/")) {
@@ -139,14 +156,13 @@ if (strtoupper($argv[1]) == "CREATE") {
             $componentContent = fread($componentFile, filesize($templatePath . "ComponentTemplate.fx.php"));
             fclose($componentFile);
 
-            $componentName = $argv[2];
             $path = "";
 
             if (str_contains($componentName, "/")) {
                 $pathParts = explode("/", $componentName);
                 $componentName = $pathParts[count($pathParts) - 1];
                 $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
-                $path = join("/", $pathParts);
+                $path = strtolower(join("/", $pathParts));
 
                 mkdir("./public/components/" . $path, 0777, true);
             }
@@ -158,9 +174,7 @@ if (strtoupper($argv[1]) == "CREATE") {
             fclose($componentFile);
             writeTerminalLine(["bold", "green"], "Created new component...");
         }
-        if (in_array("-d", $argv)) {
-            $dbName = $argv[2];
-
+        if (in_array("-d", $argv) || in_array("-a", $argv)) {
             if (!is_dir(__DIR__ . "/app/db"))
                 mkdir(__DIR__ . "/app/db");
 
@@ -175,7 +189,7 @@ if (strtoupper($argv[1]) == "CREATE") {
             $fileCount = count($allDbFiles) + 1;
             $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
 
-            $newDbFile = fopen("./app/db/" . $fileNumber . "_" . $passedName . ".sql", "w") or die("Unable to open file!");
+            $newDbFile = fopen("./app/db/" . $fileNumber . "_create_table_" . $dbName . ".sql", "w") or die("Unable to open file!");
             fwrite($newDbFile, $dbContent);
             fclose($newDbFile);
             writeTerminalLine(["bold", "green"], "Created new database file...");
@@ -203,8 +217,7 @@ if (strtoupper($argv[1]) == "CREATE") {
             $pdo->exec('CREATE DATABASE `' . DB_NAME . '`');
             $pdo->exec('USE `' . DB_NAME . '`');
 
-
-            file_put_contents($migrationFile, json_encode([]));
+            saveExecutedMigrations($migrationFile, []);
         }
     }
 
