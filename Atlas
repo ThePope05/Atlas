@@ -166,7 +166,8 @@ if (strtoupper($argv[1]) == "CREATE") {
                 $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
                 $path = strtolower(join("/", $pathParts));
 
-                mkdir("./public/components/" . $path, 0777, true);
+                if (!is_dir(__DIR__ . "/public/components/" . $path))
+                    mkdir(__DIR__ . "/public/components/" . $path, 0777, true);
             }
 
             $componentContent = str_replace("COMPONENT_NAME", $componentName, $componentContent);
@@ -279,11 +280,18 @@ if (strtoupper($argv[1]) == "CREATE") {
     require "./routes.php";
     $moduleLoader->LoadModules();
     $router->LogRoutes();
-} else {
-    writeTerminalLine(["bold", "yellow"], "Command not found" . PHP_EOL);
+} else if (strtoupper($argv[1]) == "HELP") {
     writeTerminalLine(["bold", "yellow"], "Available commands:");
-    writeTerminalLine(["bold", "yellow"], " - create -m -c -v -comp -a -d");
-    writeTerminalLine(["bold", "yellow"], " - database [filenumber]");
+    writeTerminalLine(["bold", "yellow"], " - create -m -c -v -comp -mod -a -d");
+    writeTerminalLine(["bold", "yellow"], " - db");
+    writeTerminalLine(["bold", "yellow"], " - localhost");
+    writeTerminalLine(["bold", "yellow"], " - routes:list");
+    cancelScript();
+} else {
+    writeTerminalLine(["bold", "yellow"], "Command not found\n");
+    writeTerminalLine(["bold", "yellow"], "Available commands:");
+    writeTerminalLine(["bold", "yellow"], " - create -m -c -v -comp -mod -a -d");
+    writeTerminalLine(["bold", "yellow"], " - db");
     writeTerminalLine(["bold", "yellow"], " - localhost");
     writeTerminalLine(["bold", "yellow"], " - routes:list");
     cancelScript();
