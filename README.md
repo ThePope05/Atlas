@@ -51,13 +51,13 @@ In combination with one or multiple of the following:
 -m -v -c -d -comp -mod
 ```
 
-The -v and -comp commands can contains "/" to automatically make a folder for the view or component.
+The -v and -comp commands can contain "/" to automatically make a folder for the view or component.
 This doesn't work for controllers and models.
 
 - -m = Model
 - -v = View
 - -c = Controller
-- -d = Database file
+- -d = Database schema
 - -comp = Component
 - -mod = Module
   <hr>
@@ -72,29 +72,22 @@ To clear all compiled flux files run:
 php Atlas Cache:clear
 ```
 
-To run all database files in app/db/ use:
+To run all database schemas in app/db/ use:
 
 ```cmd
 php Atlas db
 ```
 
-To run specific files add the number of the file to the end of the command.
-Atlas will keep track of the files that have been run. To rerun all files run:
+To force wipe and rerun all schemas run:
 
 ```cmd
 php Atlas db:refresh
 ```
 
-And to force run a file use (the file number is optional, including no file number will force run all files):
-
-```cmd
-php Atlas db:force [file number]
-```
-
 <br>
 <br>
 <br>
 <br>
 <br>
 
-current version 0.2
+current version 0.5
