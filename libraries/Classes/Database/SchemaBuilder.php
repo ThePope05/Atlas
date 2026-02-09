@@ -29,21 +29,21 @@ class SchemaBuilder
         $foreignKeys = [];
 
         foreach ($columns as $name => $col) {
-            if (array_key_exists('auto_increment', $col) && !array_key_exists('primary', $col)) {
+            if (in_array('auto_increment', $col) && !in_array('primary', $col)) {
                 throw new RuntimeException("AUTO_INCREMENT requires PRIMARY KEY");
             }
 
             $defs[] = $this->compileColumn($name, $col);
 
-            if (array_key_exists('primary', $col)) {
+            if (in_array('primary', $col)) {
                 $primary[] = $name;
             }
 
-            if (array_key_exists('unique', $col)) {
+            if (in_array('unique', $col)) {
                 $unique[] = "UNIQUE (`{$name}`)";
             }
 
-            if (array_key_exists('foreign', $col)) {
+            if (in_array('foreign', $col)) {
                 $foreignKeys[] = $this->compileForeignKey($table, $name, $col['foreign']);
             }
         }
@@ -69,17 +69,17 @@ class SchemaBuilder
 
         $sql = "`{$name}` " . $this->compileType($col);
 
-        if (array_key_exists('unisgned', $col)) {
+        if (in_array('unisgned', $col)) {
             $sql .= ' UNSIGNED';
         }
 
-        $sql .= array_key_exists('not_null', $col) ? ' NOT NULL' : ' NULL';
+        $sql .= (in_array('not_null', $col) || in_array('primary', $col)) ? ' NOT NULL' : 'NULL';
 
-        if (array_key_exists('default', $col)) {
+        if (in_array('default', $col)) {
             $sql .= ' DEFAULT ' . $this->compileDefault($col['default']);
         }
 
-        if (array_key_exists('auto_increment', $col)) {
+        if (in_array('auto_increment', $col)) {
             $sql .= ' AUTO_INCREMENT';
         }
 
@@ -161,9 +161,9 @@ class SchemaBuilder
         $this->pdo->exec($sql);
     }
 
-    public function drop(string $table, bool $force = false): void
+    public function drop(string $table): void
     {
-        $this->pdo->exec("DROP TABLE " . ($force) ? "" : "IF EXISTS" . " `{$table}`");
+        $this->pdo->exec("DROP TABLE IF EXISTS `{$table}`");
     }
 
     protected function compileForeignKey(string $table, string $column, array $fk): string
