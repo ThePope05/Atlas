@@ -2,6 +2,8 @@
 
 include __DIR__ . '/vendor/autoload.php';
 
+use Libraries\Classes\Database\SchemaBuilder;
+use Libraries\Classes\Database\SchemaEngine;
 use Libraries\Classes\ModuleLoader\ModuleEngine;
 use Libraries\Classes\Routing\Router;
 
@@ -179,17 +181,17 @@ if (strtoupper($argv[1]) == "CREATE") {
                 mkdir(__DIR__ . "/app/db");
 
             //Create the database
-            $dbFile = fopen($templatePath . "DatabaseTemplate.sql", "r") or die("Unable to open file!");
-            $dbContent = fread($dbFile, filesize($templatePath . "DatabaseTemplate.sql"));
+            $dbFile = fopen($templatePath . "SchemaTemplate.php", "r") or die("Unable to open file!");
+            $dbContent = fread($dbFile, filesize($templatePath . "SchemaTemplate.php"));
             fclose($dbFile);
 
             $dbContent = str_replace("TABLE_NAME", $dbName, $dbContent);
 
-            $allDbFiles = glob('./app/db/*.sql');
+            $allDbFiles = glob('./app/db/*.php');
             $fileCount = count($allDbFiles) + 1;
             $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
 
-            $newDbFile = fopen("./app/db/" . $fileNumber . "_create_table_" . $dbName . ".sql", "w") or die("Unable to open file!");
+            $newDbFile = fopen("./app/db/" . $fileNumber . "_create_table_" . $dbName . ".php", "w") or die("Unable to open file!");
             fwrite($newDbFile, $dbContent);
             fclose($newDbFile);
             writeTerminalLine(["bold", "green"], "Created new database file...");
@@ -216,8 +218,6 @@ if (strtoupper($argv[1]) == "CREATE") {
             $pdo->exec('DROP DATABASE IF EXISTS `' . DB_NAME . '`');
             $pdo->exec('CREATE DATABASE `' . DB_NAME . '`');
             $pdo->exec('USE `' . DB_NAME . '`');
-
-            saveExecutedMigrations($migrationFile, []);
         }
     }
 
@@ -251,39 +251,18 @@ if (strtoupper($argv[1]) == "CREATE") {
         }
     }
 
-    $executed = loadExecutedMigrations($migrationFile);
+    $schemaBuilder = new SchemaBuilder($pdo);
+    $schemaEngine = new SchemaEngine();
 
-    if (isset($argv[2])) {
-        $files = glob('./app/db/' . $argv[2] . '*.sql');
-    } else {
-        $files = glob('./app/db/*.sql');
-    }
+    // if (isset($argv[2])) {
+    //     $schemaEngine->RunSchema($schemaBuilder, $argv[2]);
+    //     cancelScript();
+    // }
 
-    if (count($files) == count($executed) && !str_ends_with(strtoupper($argv[1]), ":FORCE")) {
-        writeTerminalLine(["bold", "green"], 'Nothing to execute...');
-        cancelScript();
-    }
+    if (str_ends_with(strtoupper($argv[1]), ":REFRESH"))
+        $schemaEngine->ClearRunSchemas();
 
-    foreach ($files as $sqlFile) {
-        $cleanName = basename($sqlFile, '.sql');
-
-        // Skip already executed migrations
-        if (in_array($cleanName, $executed, true) && !str_ends_with(strtoupper($argv[1]), ":FORCE")) {
-            continue;
-        }
-
-        $sql = file_get_contents($sqlFile);
-        $pdo->exec($sql);
-
-        $executed[] = $cleanName;
-
-        writeTerminalLine(
-            ["bold", "green"],
-            $cleanName . ' executed successfully'
-        );
-    }
-
-    saveExecutedMigrations($migrationFile, $executed);
+    $schemaEngine->RunUp($schemaBuilder);
 
     cancelScript();
 } else if (strtoupper($argv[1]) == "LOCALHOST") {
@@ -338,24 +317,6 @@ function cancelScript($message = "")
 {
     echo TS_Reset . "\n";
     exit();
-}
-
-function loadExecutedMigrations(string $path): array
-{
-    if (!file_exists($path)) {
-        return [];
-    }
-
-    $content = file_get_contents($path);
-    return json_decode($content, true) ?? [];
-}
-
-function saveExecutedMigrations(string $path, array $migrations): void
-{
-    file_put_contents(
-        $path,
-        json_encode(array_values(array_unique($migrations)), JSON_PRETTY_PRINT)
-    );
 }
 
 function scanCopyDir($dir = "", $templateDir = "", $moduleName)
