@@ -62,16 +62,13 @@ if (strtoupper($argv[1]) == "CREATE") {
 
         if (in_array("-m", $argv) || in_array("-a", $argv)) {
 
-            $modelFile = fopen($templatePath . "ModelTemplate.php", "r") or die("Unable to open file!");
-            $modelContent = fread($modelFile, filesize($templatePath . "ModelTemplate.php"));
-            fclose($modelFile);
+            $modelContent = file_get_contents($templatePath . "ModelTemplate.php");
 
             $modelContent = str_replace("MODEL_NAME", $modelName, $modelContent);
             $modelContent = str_replace("TABLE_NAME", $dbName, $modelContent);
 
-            $modelFile = fopen("./app/models/" . $modelName . ".php", "w") or die("Unable to open file!");
-            fwrite($modelFile, $modelContent);
-            fclose($modelFile);
+            file_put_contents("./app/models/" . $modelName . ".php", $modelContent) or die("Unable to open file!");
+
             writeTerminalLine(["bold", "green"], "Created new model...");
         }
         if (in_array("-mod", $argv)) {
@@ -108,32 +105,25 @@ if (strtoupper($argv[1]) == "CREATE") {
             );
         }
         if (in_array("-c", $argv) || in_array("-a", $argv)) {
-            $controllerFile = fopen($templatePath . "ControllerTemplate.php", "r") or die("Unable to open file!");
-            $controllerContent = fread($controllerFile, filesize($templatePath . "ControllerTemplate.php"));
-            fclose($controllerFile);
+            $controllerContent = file_get_contents($templatePath . "ControllerTemplate.php");
 
             $controllerContent = str_replace("CONTROLLER_NAME", $controllerName, $controllerContent);
 
             $addModelSnippet = "";
             if (in_array("-m", $argv) || in_array("-a", $argv)) {
-                $addModelSnippetFile = fopen($templatePath . "AddModelTemplate.php", "r") or die("Unable to open file!");
-                $addModelSnippet = fread($addModelSnippetFile, filesize($templatePath . "AddModelTemplate.php"));
-                fclose($addModelSnippetFile);
+                $addModelSnippet = file_get_contents($templatePath . "AddModelTemplate.php");
 
                 $addModelSnippet = str_replace("MODEL_NAME", $modelName, $addModelSnippet);
             }
             $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
 
-            $controllerFile = fopen("./app/controllers/" . $controllerName . ".php", "w") or die("Unable to open file!");
-            fwrite($controllerFile, $controllerContent);
-            fclose($controllerFile);
+            file_put_contents("./app/controllers/" . $controllerName . ".php", $controllerContent) or die("Unable to open file!");
+
             writeTerminalLine(["bold", "green"], "Created new controller...");
         }
         if (in_array("-v", $argv)) {
 
-            $viewFile = fopen($templatePath . "ViewTemplate.fx.php", "r") or die("Unable to open file!");
-            $viewContent = fread($viewFile, filesize($templatePath . "ViewTemplate.fx.php"));
-            fclose($viewFile);
+            $viewContent = file_get_contents($templatePath . "ViewTemplate.fx.php");
             $path = "";
 
             if (str_contains($viewName, "/")) {
@@ -147,16 +137,13 @@ if (strtoupper($argv[1]) == "CREATE") {
 
             $viewContent = str_replace("VIEW_NAME", $viewName, $viewContent);
 
-            $viewFile = fopen(__DIR__ . "/public/views/" . $path . (($path != "") ? "/" : "") . $viewName . ".fx.php", "w") or die("Unable to open file!");
-            fwrite($viewFile, $viewContent);
-            fclose($viewFile);
+            file_put_contents(__DIR__ . "/public/views/" . $path . (($path != "") ? "/" : "") . $viewName . ".fx.php", $viewContent) or die("Unable to open file!");
+
             writeTerminalLine(["bold", "green"], "Created new view...");
         }
         if (in_array("-comp", $argv)) {
 
-            $componentFile = fopen($templatePath . "ComponentTemplate.fx.php", "r") or die("Unable to open file!");
-            $componentContent = fread($componentFile, filesize($templatePath . "ComponentTemplate.fx.php"));
-            fclose($componentFile);
+            $componentContent = file_get_contents($templatePath . "ComponentTemplate.fx.php");
 
             $path = "";
 
@@ -172,29 +159,36 @@ if (strtoupper($argv[1]) == "CREATE") {
 
             $componentContent = str_replace("COMPONENT_NAME", $componentName, $componentContent);
 
-            $componentFile = fopen(__DIR__ . "/public/components/" . $path . (($path != "") ? "/" : "") . $componentName . ".fx.php", "w") or die("Unable to open file!");
-            fwrite($componentFile, $componentContent);
-            fclose($componentFile);
+            file_put_contents(__DIR__ . "/public/components/" . $path . (($path != "") ? "/" : "") . $componentName . ".fx.php", $componentContent) or die("Unable to create file!");
+
             writeTerminalLine(["bold", "green"], "Created new component...");
         }
         if (in_array("-d", $argv) || in_array("-a", $argv)) {
             if (!is_dir(__DIR__ . "/app/db"))
                 mkdir(__DIR__ . "/app/db");
 
+            $path = "./app/db/";
+            $moduleArg = findArgFollowsRegex("/-mod=.*/");
+            $moduleSaveName = "";
+            if (isset($moduleArg))
+                $moduleSaveName = explode("=", $moduleArg)[1];
+
+            if ($moduleSaveName != "") {
+                if (is_dir(__DIR__ . "/modules/$moduleSaveName/db")) {
+                    $path = __DIR__ . "/modules/$moduleSaveName/db/";
+                } else {
+                    writeTerminalLine(["bold", "yellow"], "No module found...");
+                    cancelScript();
+                }
+            }
+
             //Create the database
-            $dbFile = fopen($templatePath . "SchemaTemplate.php", "r") or die("Unable to open file!");
-            $dbContent = fread($dbFile, filesize($templatePath . "SchemaTemplate.php"));
-            fclose($dbFile);
+            $dbContent = file_get_contents($templatePath . "SchemaTemplate.php");
 
             $dbContent = str_replace("TABLE_NAME", $dbName, $dbContent);
 
-            $allDbFiles = glob('./app/db/*.php');
-            $fileCount = count($allDbFiles) + 1;
-            $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
+            file_put_contents($path . getNewSchemaName($dbName), $dbContent) or die("Unable to open file!");
 
-            $newDbFile = fopen("./app/db/" . $fileNumber . "_create_table_" . $dbName . ".php", "w") or die("Unable to open file!");
-            fwrite($newDbFile, $dbContent);
-            fclose($newDbFile);
             writeTerminalLine(["bold", "green"], "Created new database file...");
         }
 
@@ -231,7 +225,7 @@ if (strtoupper($argv[1]) == "CREATE") {
         writeTerminalLine(["bold", "red"], "Connection failed: " . $e->getMessage());
         writeTerminalLine(["bold", "yellow"], "Possible database creation required");
 
-        writeTerminalLine(["bold", "yellow"], "Do you want to create the database? (y):");
+        writeTerminalLine(["bold", "yellow"], "Do you want to attempt database creation? (y):");
         $proceed = readline('');
 
         if ($proceed == 'y' || $proceed == '') {
@@ -281,19 +275,11 @@ if (strtoupper($argv[1]) == "CREATE") {
     $moduleLoader->LoadModules();
     $router->LogRoutes();
 } else if (strtoupper($argv[1]) == "HELP") {
-    writeTerminalLine(["bold", "yellow"], "Available commands:");
-    writeTerminalLine(["bold", "yellow"], " - create -m -c -v -comp -mod -a -d");
-    writeTerminalLine(["bold", "yellow"], " - db");
-    writeTerminalLine(["bold", "yellow"], " - localhost");
-    writeTerminalLine(["bold", "yellow"], " - routes:list");
+    writeHelpFunction();
     cancelScript();
 } else {
     writeTerminalLine(["bold", "yellow"], "Command not found\n");
-    writeTerminalLine(["bold", "yellow"], "Available commands:");
-    writeTerminalLine(["bold", "yellow"], " - create -m -c -v -comp -mod -a -d");
-    writeTerminalLine(["bold", "yellow"], " - db");
-    writeTerminalLine(["bold", "yellow"], " - localhost");
-    writeTerminalLine(["bold", "yellow"], " - routes:list");
+    writeHelpFunction();
     cancelScript();
 }
 
@@ -325,6 +311,41 @@ function cancelScript($message = "")
 {
     echo TS_Reset . "\n";
     exit();
+}
+
+function writeHelpFunction()
+{
+    writeTerminalLine(["bold", "yellow"], "Available commands:");
+    writeTerminalLine(["bold", "yellow"], " - create [name] -m -c -v -comp -mod -a -d");
+    writeTerminalLine(["bold", "yellow"], " - db");
+    writeTerminalLine(["bold", "yellow"], " - localhost");
+    writeTerminalLine(["bold", "yellow"], " - routes:list");
+    writeTerminalLine(["bold", "yellow"], " - cache:clear");
+}
+
+function getNewSchemaName(string $schemaName)
+{
+    $allGeneralSchemaFiles = glob('./app/db/*.php');
+    $allModuleSchemaFiles = glob('./modules/*/db/*.php');
+    $allDbFiles = array_merge($allGeneralSchemaFiles, $allModuleSchemaFiles);
+
+    $fileCount = count($allDbFiles) + 1;
+    $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
+
+    return $fileNumber . "_create_table_" . $schemaName . ".php";
+}
+
+function findArgFollowsRegex($regex)
+{
+    global $argv;
+    foreach ($argv as $index => $arg) {
+        if (preg_match($regex, $arg)) {
+            var_dump($arg);
+            return $arg;
+        }
+    }
+
+    return null;
 }
 
 function scanCopyDir($dir = "", $templateDir = "", $moduleName)

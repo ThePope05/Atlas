@@ -48,7 +48,14 @@ class SchemaEngine
     protected function getPendingSchemas(): array
     {
         $executedSchemas = $this->getExecutedSchemas($this->path);
-        $allSchemas = glob('./app/db/*.php');
+        $allGeneralSchemas = glob('./app/db/*.php');
+        $allModuleSchemas = glob("./modules/*/db/*.php");
+        $allSchemas = array_merge($allGeneralSchemas, $allModuleSchemas);
+        usort($allSchemas, function ($a, $b) {
+            return basename($a) <=> basename($b);
+        });
+        var_dump($allSchemas);
+        exit;
 
         return array_filter($allSchemas, function ($schema) use ($executedSchemas) {
             return !in_array($schema, $executedSchemas, true);
