@@ -40,7 +40,7 @@ class Router
         }
 
         foreach ($this->routes as $route) {
-            if (str_starts_with($uri, $route->Uri) && $route->Action == $action) {
+            if (str_starts_with(strtolower($uri), strtolower($route->Uri)) && $route->Action == $action) {
 
                 $class = new $route->Class();
                 call_user_func_array(
