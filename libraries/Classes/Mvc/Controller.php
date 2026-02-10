@@ -9,4 +9,9 @@ abstract class Controller
         $viewEngine = new \Libraries\Classes\FileCompiler\ViewEngine();
         $viewEngine->TryGetFile($viewName, $data);
     }
+
+    protected function redirect(string $url)
+    {
+        header("location: $url");
+    }
 }
