@@ -1,7 +1,0 @@
-{
-	"name": "TestModule",
-	"version": "0.1",
-	"main": "TestModule",
-	"routes": true,
-	"migrations": false
-}
