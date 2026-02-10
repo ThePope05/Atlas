@@ -174,7 +174,10 @@ if (strtoupper($argv[1]) == "CREATE") {
                 $moduleSaveName = explode("=", $moduleArg)[1];
 
             if ($moduleSaveName != "") {
-                if (is_dir(__DIR__ . "/modules/$moduleSaveName/db")) {
+                if (is_dir(__DIR__ . "/modules/$moduleSaveName")) {
+                    if (!is_dir(__DIR__ . "/modules/$moduleSaveName/db"))
+                        mkdir(__DIR__ . "/modules/$moduleSaveName/db");
+
                     $path = __DIR__ . "/modules/$moduleSaveName/db/";
                 } else {
                     writeTerminalLine(["bold", "yellow"], "No module found...");
