@@ -1,6 +1,6 @@
-protected \App\Models\MODEL_NAME $model;
+protected \NAMESPACE_NAME\Models\MODEL_NAME $model;
 
 public function __construct()
 {
-$this->model = new \App\Models\MODEL_NAME();
+$this->model = new \NAMESPACE_NAME\Models\MODEL_NAME();
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace NAMESPACE_NAME\Models;
 
 use Libraries\Classes\Mvc\Model;
 

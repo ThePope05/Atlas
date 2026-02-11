@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Controllers;
+namespace NAMESPACE_NAME\Controllers;
 
 use Libraries\Classes\Mvc\Controller;
 

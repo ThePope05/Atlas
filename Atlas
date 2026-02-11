@@ -41,6 +41,28 @@ if (!isset($argv[1]))
 if (strtoupper($argv[1]) == "CREATE") {
     if (isset($argv[2])) {
         $templatePath = __DIR__ . "/libraries/classes/templates/";
+        $writePathPrefix = __DIR__ . "/app/";
+        $viewWritePathPrefix = __DIR__ . "/public/";
+        $namespaceName = "App";
+        $isModule = false;
+
+        $moduleArg = findArgFollowsRegex("/-mod=.*/");
+        $moduleSaveName = "";
+        if (isset($moduleArg))
+            $moduleSaveName = explode("=", $moduleArg)[1];
+
+        if ($moduleSaveName != "") {
+            if (is_dir(__DIR__ . "/modules/$moduleSaveName/")) {
+                $isModule = true;
+                $namespaceName = "Modules\\$moduleSaveName";
+                $writePathPrefix = __DIR__ . "/modules/$moduleSaveName/";
+                $viewWritePathPrefix = __DIR__ . "/modules/$moduleSaveName/";
+            } else {
+                writeTerminalLine(["bold", "yellow"], "No module found...");
+                cancelScript();
+            }
+        }
+
 
         $passedName = $argv[2];
         $controllerName = ucfirst($passedName) . "Controller";
@@ -66,8 +88,12 @@ if (strtoupper($argv[1]) == "CREATE") {
 
             $modelContent = str_replace("MODEL_NAME", $modelName, $modelContent);
             $modelContent = str_replace("TABLE_NAME", $dbName, $modelContent);
+            $modelContent = str_replace("NAMESPACE_NAME", $namespaceName, $modelContent);
 
-            file_put_contents("./app/models/" . $modelName . ".php", $modelContent) or die("Unable to open file!");
+            if (!is_dir($writePathPrefix . "models"))
+                mkdir($writePathPrefix . "models");
+
+            file_put_contents($writePathPrefix . "models/" . $modelName . ".php", $modelContent) or die("Unable to open file!");
 
             writeTerminalLine(["bold", "green"], "Created new model...");
         }
@@ -116,8 +142,9 @@ if (strtoupper($argv[1]) == "CREATE") {
                 $addModelSnippet = str_replace("MODEL_NAME", $modelName, $addModelSnippet);
             }
             $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
+            $controllerContent = str_replace("NAMESPACE_NAME", $namespaceName, $controllerContent);
 
-            file_put_contents("./app/controllers/" . $controllerName . ".php", $controllerContent) or die("Unable to open file!");
+            file_put_contents($writePathPrefix . "controllers/" . $controllerName . ".php", $controllerContent) or die("Unable to open file!");
 
             writeTerminalLine(["bold", "green"], "Created new controller...");
         }
@@ -132,12 +159,12 @@ if (strtoupper($argv[1]) == "CREATE") {
                 $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
                 $path = join("/", $pathParts);
 
-                mkdir("./public/views/" . $path, 0777, true);
+                mkdir($viewWritePathPrefix . "views/" . $path, 0777, true);
             }
 
             $viewContent = str_replace("VIEW_NAME", $viewName, $viewContent);
 
-            file_put_contents(__DIR__ . "/public/views/" . $path . (($path != "") ? "/" : "") . $viewName . ".fx.php", $viewContent) or die("Unable to open file!");
+            file_put_contents($viewWritePathPrefix . "views/" . $path . (($path != "") ? "/" : "") . $viewName . ".fx.php", $viewContent) or die("Unable to open file!");
 
             writeTerminalLine(["bold", "green"], "Created new view...");
         }
@@ -153,37 +180,21 @@ if (strtoupper($argv[1]) == "CREATE") {
                 $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
                 $path = strtolower(join("/", $pathParts));
 
-                if (!is_dir(__DIR__ . "/public/components/" . $path))
-                    mkdir(__DIR__ . "/public/components/" . $path, 0777, true);
+                if (!is_dir($viewWritePathPrefix . "components/" . $path))
+                    mkdir($viewWritePathPrefix . "components/" . $path, 0777, true);
             }
 
             $componentContent = str_replace("COMPONENT_NAME", $componentName, $componentContent);
 
-            file_put_contents(__DIR__ . "/public/components/" . $path . (($path != "") ? "/" : "") . $componentName . ".fx.php", $componentContent) or die("Unable to create file!");
+            file_put_contents($viewWritePathPrefix . "components/" . $path . (($path != "") ? "/" : "") . $componentName . ".fx.php", $componentContent) or die("Unable to create file!");
 
             writeTerminalLine(["bold", "green"], "Created new component...");
         }
         if (in_array("-d", $argv) || in_array("-a", $argv)) {
-            if (!is_dir(__DIR__ . "/app/db"))
-                mkdir(__DIR__ . "/app/db");
+            if (!is_dir($writePathPrefix . "db"))
+                mkdir($writePathPrefix . "db");
 
-            $path = "./app/db/";
-            $moduleArg = findArgFollowsRegex("/-mod=.*/");
-            $moduleSaveName = "";
-            if (isset($moduleArg))
-                $moduleSaveName = explode("=", $moduleArg)[1];
-
-            if ($moduleSaveName != "") {
-                if (is_dir(__DIR__ . "/modules/$moduleSaveName")) {
-                    if (!is_dir(__DIR__ . "/modules/$moduleSaveName/db"))
-                        mkdir(__DIR__ . "/modules/$moduleSaveName/db");
-
-                    $path = __DIR__ . "/modules/$moduleSaveName/db/";
-                } else {
-                    writeTerminalLine(["bold", "yellow"], "No module found...");
-                    cancelScript();
-                }
-            }
+            $path = $writePathPrefix . "db/";
 
             //Create the database
             $dbContent = file_get_contents($templatePath . "SchemaTemplate.php");
