@@ -8,8 +8,8 @@ class MODULE_NAMEController extends ModuleController
 {
     protected string $moduleName = "MODULE_NAME";
 
-    public function Index($pagetitle)
+    public function Index()
     {
-        $this->view("Welcome");
+        $this->view("Index");
     }
 }
