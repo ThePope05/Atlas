@@ -1,19 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lexend+Deca:wght@100..900&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="./public/css/style.css">
-    <title>HomePage</title>
-</head>
+@component('Head')
 
 <body>
-    @component('WelcomeTitle')
+    <div class="part welcome">
+        @component('WelcomeTitle')
+    </div>
+
+    <div class="part">
+        <div class="tiles">
+            <div class="tile">
+                <h3>Setup</h3>
+            </div>
+            <div class="tile">
+                <h3>Commands</h3>
+            </div>
+            <div class="tile">
+                <h3>MVC</h3>
+            </div>
+            <div class="tile">
+                <h3>Routing</h3>
+            </div>
+            <div class="tile">
+                <h3>Schemas</h3>
+            </div>
+            <div class="tile">
+                <h3>Modules</h3>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

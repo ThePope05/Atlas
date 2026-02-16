@@ -13,7 +13,7 @@ html {
 }
 
 body {
-	height: 100vh;
+	min-height: 100vh;
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
@@ -23,15 +23,95 @@ body {
 	font-size: 2rem;
 	font-family: Arial, Helvetica, sans-serif;
 
+	.part {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+
+		width: 100%;
+		height: 100vh;
+
+		background: #292c2e;
+
+		&.welcome {
+			background: linear-gradient(
+				0deg,
+				rgba(41, 44, 46, 1) 0%,
+				rgb(9, 12, 17) 100%
+			);
+		}
+
+		> .tiles {
+			width: 80%;
+			height: 50%;
+
+			display: grid;
+			grid-template: repeat(2, auto) / repeat(3, 32%);
+			grid-auto-flow: row dense;
+			gap: 3rem;
+
+			> .tile {
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				align-items: center;
+
+				width: 100%;
+				height: 100%;
+
+				background-clip: padding-box, border-box;
+				background-image:
+					linear-gradient(0deg, #2e3235, #292c2e 80%),
+					linear-gradient(
+						0deg,
+						rgba(35, 39, 41, 0.8) 0%,
+						rgba(9, 12, 17, 0.6) 100%
+					);
+				background-origin: border-box;
+				transition: filter 0.3s ease-in-out;
+
+				border-radius: 1rem;
+				border: 5px solid transparent;
+
+				&:hover {
+					filter: brightness(1.1);
+				}
+
+				> h3 {
+				}
+			}
+		}
+
+		span.arrow {
+			font-size: 5rem;
+			color: rgba(41, 44, 46, 1);
+			animation: arrow-bounce 3s infinite ease-in-out;
+
+			position: absolute;
+			bottom: 15%;
+		}
+	}
+
 	h2 {
 		position: absolute;
 		font-size: 8rem;
-		top: 20%;
+		top: 21%;
 
 		font-family: "Lexend Deca", sans-serif;
 		font-optical-sizing: auto;
 		font-weight: 400;
 		font-style: normal;
+
+		&.sub-title {
+			font-size: 4rem;
+			top: 55%;
+
+			color: #c7ddeb;
+			text-shadow:
+				#7ebcdf 0px 0px 3rem,
+				#c7ddeb 0px 0px 1rem;
+		}
 	}
 
 	.perspective-box {
@@ -217,6 +297,7 @@ body {
 		#df7e7e 0px 0px 3rem,
 		#ebc7c7 0px 0px 1rem;
 }
+
 @keyframes spinning-box {
 	0% {
 		transform: rotateX(10deg) rotateZ(10deg) rotateY(0deg);
@@ -238,5 +319,17 @@ body {
 	100% {
 		transform: rotateX(-90deg) rotateX(-20deg) translateY(50px)
 			translateZ(20px);
+	}
+}
+
+@keyframes arrow-bounce {
+	0% {
+		bottom: 15%;
+	}
+	50% {
+		bottom: 13%;
+	}
+	100% {
+		bottom: 15%;
 	}
 }
