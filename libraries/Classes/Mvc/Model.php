@@ -8,8 +8,6 @@ use PDOException;
 
 abstract class Model
 {
-    protected array $fillable = [];
-    protected string $table = '';
     protected QueryBuilder $db;
 
     public function __construct()
