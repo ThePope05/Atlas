@@ -40,13 +40,19 @@ class Router
         }
 
         foreach ($this->routes as $route) {
-            if (str_starts_with(strtolower($uri), strtolower($route->Uri)) && $route->Action == $action) {
+            $routeUri = strtolower($route->Uri);
+            $lowerUri = strtolower($uri);
+
+            // Exact match, or the URI continues with a '/' (segment boundary)
+            $isMatch = $lowerUri === $routeUri
+                || str_starts_with($lowerUri, $routeUri . '/');
+
+            if ($isMatch && $route->Action == $action) {
+                $extra = trim(substr($uri, strlen($route->Uri)), '/');
+                $params = $extra !== '' ? explode('/', $extra) : [];
 
                 $class = new $route->Class();
-                call_user_func_array(
-                    [$class, $route->Method],
-                    explode('/', trim(str_replace($route->Uri, "", $uri), '/'))
-                );
+                call_user_func_array([$class, $route->Method], $params);
                 return;
             }
         }
@@ -59,15 +65,12 @@ class Router
     public function GetUri()
     {
         if (isset($_SERVER['REQUEST_URI'])) {
-            $url = rtrim($_SERVER['REQUEST_URI'], '/');
+            $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+            $url = rtrim($url, '/');
 
-            $url = filter_var($url, FILTER_SANITIZE_URL);
-
-            $url = urldecode($url);
-
-            return $url;
+            return $url ?: '/';
         } else {
-            return array('Homepage', 'index');
+            return '/';
         }
     }
 }

@@ -12,6 +12,12 @@ abstract class Controller
 
     protected function redirect(string $url)
     {
-        header("location: $url");
+        // Only allow local redirects (paths starting with /) to prevent open redirect attacks.
+        // Block protocol-relative URLs (//evil.com) and absolute URLs with a scheme.
+        if (!str_starts_with($url, '/') || str_starts_with($url, '//')) {
+            throw new \InvalidArgumentException("Redirect to external URLs is not allowed");
+        }
+
+        header("Location: $url");
     }
 }

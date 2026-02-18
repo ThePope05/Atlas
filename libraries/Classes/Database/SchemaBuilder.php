@@ -69,7 +69,7 @@ class SchemaBuilder
 
         $sql = "`{$name}` " . $this->compileType($col);
 
-        if (in_array('unisgned', $col)) {
+        if (in_array('unsigned', $col)) {
             $sql .= ' UNSIGNED';
         }
 

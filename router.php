@@ -65,42 +65,10 @@ if (isset($_SERVER['HTTP_REFERER'])) {
         http_response_code(404);
     }
 } else {
-    //We need to check if the url contains any php code
-
-    if (preg_match('/<\?php/i', $url)) {
-        //If it does, we need to send back a 403 error
-        http_response_code(403);
-        exit();
-    }
-
-    //We need to check if the url contains any javascript code
-
-    if (preg_match('/<script>/i', $url)) {
-        //If it does, we need to send back a 403 error
-        http_response_code(403);
-        exit();
-    }
-
-    //We need to check if the url contains any html code
-
-    if (preg_match('/<html>/i', $url)) {
-        //If it does, we need to send back a 403 error
-        http_response_code(403);
-        exit();
-    }
-
-    //We need to check if the url contains any css code
-
-    if (preg_match('/<style>/i', $url)) {
-        //If it does, we need to send back a 403 error
-        http_response_code(403);
-        exit();
-    }
-
-    //We need to check if the url contains any sql code
-
-    if (preg_match('/SELECT/i', $url) || preg_match('/DELETE/i', $url) || preg_match('/INSERT/i', $url) || preg_match('/UPDATE/i', $url)) {
-        //If it does, we need to send back a 403 error
+    // Whitelist: only allow safe URL characters (alphanumeric, slashes, hyphens, underscores, dots, query strings)
+    // Reject anything containing encoded or raw angle brackets, null bytes, or other suspicious characters
+    $decoded_url = urldecode($url);
+    if ($decoded_url !== $url || preg_match('/[<>\'";\x00]/', $decoded_url) || !preg_match('#^[a-zA-Z0-9/_\-\.~:?&=%+,@]+$#', $url)) {
         http_response_code(403);
         exit();
     }
