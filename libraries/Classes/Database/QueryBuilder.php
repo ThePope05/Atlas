@@ -256,4 +256,9 @@ class QueryBuilder
 
         return $sql;
     }
+
+    public function DebugSql(): string
+    {
+        return $this->toSql();
+    }
 }
