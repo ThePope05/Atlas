@@ -16,6 +16,7 @@ class WelcomeController extends Controller
 
     public function WelcomePage()
     {
+        $this->model->Test();
         $this->view("Welcome");
     }
 }
