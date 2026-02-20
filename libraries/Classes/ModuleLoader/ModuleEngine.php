@@ -6,6 +6,9 @@ class ModuleEngine
 {
     public function LoadModules()
     {
+        if (!is_file(__DIR__ . '/../../../config/modules.json'))
+            return;
+
         $config = json_decode(file_get_contents(__DIR__ . '/../../../config/modules.json'), true);
         $modules = null;
 

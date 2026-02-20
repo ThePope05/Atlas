@@ -1,6 +1,8 @@
-# 🌐 Atlas
+# 🌐 Atlas Framework
 
-Atlas is a modular back end framework, which I made for a specific project.
+**Version:** 0.9.9 <br>
+**Type:** PHP MVC web framework <br>
+**PHP:** 8.1+ <br>
 
 ## 🔧 Setup
 
@@ -33,68 +35,6 @@ php Atlas localhost
 npm run dev
 ```
 
-## 💻 Atlas commands for DEV
+<hr>
 
-```cmd
-php Atlas localhost
-```
-
-To auto generate Models, Views, Controllers, Database files, or Components use:
-
-```cmd
-php Atlas create [name]
-```
-
-In combination with one or multiple of the following:
-
-```cmd
--m -v -c -d -comp -mod
-```
-
-Or to create a file for a specific module add (doesn't work for -mod):
-
-```cmd
--mod=[module_name]
-```
-
-The -v and -comp commands can contain "/" to automatically make a folder for the view or component.
-This doesn't work for controllers and models.
-
--   -m = Model
--   -v = View
--   -c = Controller
--   -d = Database schema
--   -comp = Component
--   -mod = Module
--   -mod=[module_name] = Create the file in a specific module
-    <hr>
-
-```cmd
-php Atlas Route:list
-```
-
-To clear all compiled flux files run:
-
-```cmd
-php Atlas Cache:clear
-```
-
-To run all database schemas in app/db/ use:
-
-```cmd
-php Atlas db
-```
-
-To force wipe and rerun all schemas run:
-
-```cmd
-php Atlas db:refresh
-```
-
-<br>
-<br>
-<br>
-<br>
-<br>
-
-current version 0.5
+## [Documentation](https://github.com/ThePope05/Atlas/blob/fix/critical-security-issues/doc/ATLAS.md)

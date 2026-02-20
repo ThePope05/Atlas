@@ -22,15 +22,17 @@ class FluxCompileEngine extends CompileEngine
             $this->compile($source, $compiled);
         }
 
-        extract($data, EXTR_SKIP);
-
         try {
-            //dd([array_keys($data), $data["reservations"]]);
-
-            include $compiled;
+            $this->render($compiled, $data);
         } catch (\Throwable $e) {
             throw new Exception("Error rendering view [$filename]", 0, $e);
         }
+    }
+
+    protected function render(string $__file, array $__data): void
+    {
+        extract($__data, EXTR_SKIP);
+        include $__file;
     }
 
     protected function compile(string $source, string $compiled)
