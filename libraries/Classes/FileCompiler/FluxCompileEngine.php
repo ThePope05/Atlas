@@ -31,14 +31,7 @@ class FluxCompileEngine extends CompileEngine
 
     protected function render(string $__file, array $__data): void
     {
-        //dd($__data);
-        // if (!empty($__data)) {
-        //     foreach ($__data as $__key => $__value) {
-        //         $$__key = $__value;
-        //     }
-        // }
         extract($__data, EXTR_SKIP);
-        //unset($__key, $__value, $__data);
         include $__file;
     }
 
