@@ -274,7 +274,7 @@ if (strtoupper($argv[1]) == "CREATE") {
     $schemaEngine->RunUp($schemaBuilder);
 
     cancelScript();
-} else if (strtoupper($argv[1]) == "LOCALHOST") {
+} else if (strtoupper($argv[1]) == "DEV") {
     include_once 'config/config.php';
 
     $server = DB_HOST . ":" . PORT;
