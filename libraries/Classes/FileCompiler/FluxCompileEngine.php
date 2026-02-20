@@ -22,21 +22,24 @@ class FluxCompileEngine extends CompileEngine
             $this->compile($source, $compiled);
         }
 
-        // Render in an isolated scope so only $data keys become local variables.
-        // Using a closure prevents caller variables from leaking into the template.
-        $__render = static function (string $__file, array $__data): void {
-            foreach ($__data as $__key => $__value) {
-                $$__key = $__value;
-            }
-            unset($__key, $__value, $__data);
-            include $__file;
-        };
-
         try {
-            $__render($compiled, $data);
+            $this->render($compiled, $data);
         } catch (\Throwable $e) {
             throw new Exception("Error rendering view [$filename]", 0, $e);
         }
+    }
+
+    protected function render(string $__file, array $__data): void
+    {
+        //dd($__data);
+        // if (!empty($__data)) {
+        //     foreach ($__data as $__key => $__value) {
+        //         $$__key = $__value;
+        //     }
+        // }
+        extract($__data, EXTR_SKIP);
+        //unset($__key, $__value, $__data);
+        include $__file;
     }
 
     protected function compile(string $source, string $compiled)
