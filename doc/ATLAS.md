@@ -1,14 +1,14 @@
-# Atlas Framework
+# 🌐 Atlas Framework
 
-**Version:** 0.5
-**Type:** Custom PHP MVC web framework
-**PHP:** 8.1+
+**Version:** 0.9.9 <br>
+**Type:** PHP MVC web framework <br>
+**PHP:** 8.1+ <br>
 
-## Overview
+## 🗣 Overview
 
 Atlas is a modular PHP framework for backend web development. It provides an MVC architecture, a custom template engine called Flux, a SQL query builder, database schema management, a module system, and SCSS compilation support.
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 Atlas/
@@ -29,7 +29,7 @@ Atlas/
 │   │   ├── Mvc/             # Controller, Model, ModuleController abstracts
 │   │   ├── Routing/         # Router, Route
 │   │   └── Templates/       # Code generation templates for CLI scaffolding
-│   └── Constants/           # RouteActions enum, GlobalFunctions
+│   └── Constants/           # RouteActions enum, GlobalFunctions, and other enums
 ├── modules/                 # Self-contained application modules
 ├── public/
 │   ├── cache/compiled/      # Compiled Flux templates (auto-generated)
@@ -43,7 +43,7 @@ Atlas/
 └── Atlas                     # CLI tool for scaffolding and running the dev server
 ```
 
-## Request Lifecycle
+## 🔁 Request Lifecycle
 
 1. **`router.php`** receives every request (PHP built-in server or web server rewrite).
 2. If the request has an `HTTP_REFERER`, it is treated as a static asset request — the file is served directly via `CompileEngine`.
@@ -52,7 +52,7 @@ Atlas/
 5. The **Router** matches the URI against registered routes (exact match or segment-boundary prefix). On match, it instantiates the controller and calls the method with any extra path segments as arguments.
 6. Controllers call `$this->view()` which compiles and renders Flux templates, or `$this->redirect()` for local redirects.
 
-## Core Components
+## ⭕ Core Components
 
 ### Routing
 
@@ -89,6 +89,7 @@ class WelcomeController extends Controller
 ```
 
 **Available methods:**
+
 - `view(string $viewName, array $data = [])` — renders a Flux template from `app/views/`
 - `redirect(string $url)` — local redirect only (paths starting with `/`, blocks `//` and external URLs)
 
@@ -101,11 +102,7 @@ namespace App\Models;
 
 use Libraries\Classes\Mvc\Model;
 
-class WelcomeModel extends Model
-{
-    protected string $table = 'welcome';
-    protected array $fillable = ['name', 'email'];
-}
+class WelcomeModel extends Model { }
 ```
 
 - Automatically creates a PDO connection using `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` constants.
@@ -148,6 +145,7 @@ $this->db->table('users')
 ```
 
 **Safety features:**
+
 - All values use prepared statements (SQL injection safe).
 - `DELETE` and `UPDATE` without a `WHERE` clause throw a `RuntimeException`.
 
@@ -171,7 +169,7 @@ $schema->modifyColumn('users', 'name', ['type' => 'varchar', 'length' => 200, 'n
 $schema->drop('users');
 ```
 
-**Supported column types:** `int`, `bigint`, `bool`, `varchar`, `text`, `datetime`, `date`, `float`, `decimal`
+**Supported column types:** `int`, `bigint`, `bool`, `varchar`, `text`, `datetime`, `date`, `float`, `decimal` <br>
 **Column flags:** `primary`, `auto_increment`, `unsigned`, `not_null`, `unique`, `default`, `foreign`
 
 ### Flux Template Engine
@@ -183,20 +181,15 @@ Custom template syntax compiled to PHP and cached in `public/cache/compiled/`:
 <h1>{{ $title }}</h1>
 
 <!-- Components -->
-@component('header')
-@component('sidebar', 'moduleName')
+@component('header') @component('sidebar', 'moduleName')
 
 <!-- Control structures -->
 @foreach($items as $item)
-    <p>{{ $item->name }}</p>
-@endforeach
-
-@if($user->isAdmin())
-    <span>Admin</span>
-@endif
-
-@for($i = 0; $i < 10; $i++)
-    <p>{{ $i }}</p>
+<p>{{ $item->name }}</p>
+@endforeach @if($user->isAdmin())
+<span>Admin</span>
+@endif @for($i = 0; $i < 10; $i++)
+<p>{{ $i }}</p>
 @endfor
 ```
 
@@ -210,14 +203,14 @@ Self-contained modules live in `modules/` and are configured via `config/modules
 
 ```json
 [
-    { "name": "Blog", "enabled": true },
-    { "name": "Shop", "enabled": false }
+	{ "name": "Blog", "enabled": true },
+	{ "name": "Shop", "enabled": false }
 ]
 ```
 
 Each module has its own controllers, views, components, and route file. Modules extend `ModuleController` instead of `Controller`.
 
-## Configuration
+## 🔧 Configuration
 
 ### Environment Variables
 
@@ -239,24 +232,34 @@ The config file (`config/config.php`, copied from `config/example.config.php`) l
 ### PHP Settings
 
 `config/php.ini` sets:
+
 - `error_reporting = E_ALL`
 - `display_errors = Off` (errors logged, not shown to users)
 - `log_errors = On`
 
-## CLI Tool
+## 💻 CLI Tool
 
 The `Atlas` file in the project root is a CLI tool for scaffolding and running the dev server:
 
 ```bash
-php Atlas serve              # Start the dev server
-php Atlas make:controller    # Scaffold a controller
-php Atlas make:model         # Scaffold a model
-php Atlas make:schema        # Scaffold a schema migration
-php Atlas make:module        # Scaffold a module
-php Atlas migrate            # Run migrations
+php Atlas dev                   # Start the dev server
+php Atlas make [name] [option]  # Scaffolds template files
+php Atlas db                    # Run migrations
+php Atlas db:refresh            # Run migrations
 ```
 
-## Security Notes
+Options to use for the scaffold/create commands are:
+
+```bash
+-m                              #model
+-v                              #view
+-c                              #controller
+-d                              #schema
+-mod                            #model
+-comp                           #component
+```
+
+## 🔐 Security Notes
 
 - **URL validation** uses a whitelist approach — only safe characters are allowed through. Double-encoding is blocked.
 - **SQL injection** is prevented by parameterized queries in `QueryBuilder`.
@@ -266,10 +269,12 @@ php Atlas migrate            # Run migrations
 - **Rate limiting** is session-based (token bucket, 100 tokens, 1/sec refill). Suitable for basic abuse prevention, not DDoS protection.
 - **CSRF protection** is not yet built into the framework — implement token validation manually for POST routes handling sensitive actions.
 
-## Dependencies
+## 📦 Dependencies
 
 **Composer** (`composer.json`):
+
 - PSR-4 autoloading only, no third-party PHP packages required.
 
 **Node** (`package.json`):
+
 - SCSS compilation support (see package.json for specific packages).
