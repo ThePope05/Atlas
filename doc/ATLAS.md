@@ -181,14 +181,19 @@ Custom template syntax compiled to PHP and cached in `public/cache/compiled/`:
 <h1>{{ $title }}</h1>
 
 <!-- Components -->
-@component('header') @component('sidebar', 'moduleName')
+@component('header')
+@component('sidebar', 'moduleName')
 
 <!-- Control structures -->
 @foreach($items as $item)
 <p>{{ $item->name }}</p>
-@endforeach @if($user->isAdmin())
+@endforeach
+
+@if($user->isAdmin())
 <span>Admin</span>
-@endif @for($i = 0; $i < 10; $i++)
+@endif
+
+@for($i = 0; $i < 10; $i++)
 <p>{{ $i }}</p>
 @endfor
 ```
