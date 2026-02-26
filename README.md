@@ -40,4 +40,4 @@ npm run dev
 
 <hr>
 
-## [Documentation](https://github.com/ThePope05/Atlas/blob/fix/critical-security-issues/doc/ATLAS.md)
+## [Documentation](https://github.com/ThePope05/Atlas/blob/master/doc/ATLAS.md)
