@@ -23,12 +23,15 @@ And then run (you still need to run the commands above):
 make Atlas 'your_project_name'
 ```
 
+Next make sure to duplicate the .env.example.
+And remove the .example from the duplicated file.
+
 ## 🏃 Running the project
 
 To local host run:
 
 ```cmd
-php Atlas localhost
+php Atlas dev
 ```
 
 ```cmd
