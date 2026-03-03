@@ -1,6 +1,6 @@
 # 🌐 Atlas Framework
 
-**Version:** 0.9.9 <br>
+**Version:** 1.0 <br>
 **Type:** PHP MVC web framework <br>
 **PHP:** 8.1+ <br>
 

@@ -68,6 +68,7 @@ if (strtoupper($argv[1]) == "CREATE") {
         $controllerName = ucfirst($passedName) . "Controller";
         $modelName = ucfirst($passedName) . "Model";
         $moduleName = ucfirst($passedName) . "Module";
+        $middlewareName = ucfirst($passedName) . "Middleware";
         $viewName = ucfirst($passedName);
         $componentName = $passedName;
         $dbName = strtolower($passedName);
@@ -90,12 +91,25 @@ if (strtoupper($argv[1]) == "CREATE") {
             $modelContent = str_replace("TABLE_NAME", $dbName, $modelContent);
             $modelContent = str_replace("NAMESPACE_NAME", $namespaceName, $modelContent);
 
-            if (!is_dir($writePathPrefix . "models"))
-                mkdir($writePathPrefix . "models");
+            if (!is_dir($writePathPrefix . "Models"))
+                mkdir($writePathPrefix . "Models");
 
-            file_put_contents($writePathPrefix . "models/" . $modelName . ".php", $modelContent) or die("Unable to open file!");
+            file_put_contents($writePathPrefix . "Models/" . $modelName . ".php", $modelContent) or die("Unable to open file!");
 
             writeTerminalLine(["bold", "green"], "Created new model...");
+        }
+        if (in_array("-mid", $argv)) {
+
+            $middlewareContent = file_get_contents($templatePath . "MiddlewareTemplate.php");
+
+            $middlewareContent = str_replace("MIDDLEWARE_NAME", $middlewareName, $middlewareContent);
+
+            if (!is_dir($writePathPrefix . "Middlewares"))
+                mkdir($writePathPrefix . "Middlewares");
+
+            file_put_contents($writePathPrefix . "Middlewares/" . $middlewareName . ".php", $middlewareContent) or die("Unable to open file!");
+
+            writeTerminalLine(["bold", "green"], "Created new middleware...");
         }
         if (in_array("-mod", $argv)) {
             if (is_dir(__DIR__ . "/modules/$moduleName")) {
