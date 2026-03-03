@@ -14,6 +14,8 @@ Atlas is a modular PHP framework for backend web development. It provides an MVC
 Atlas/
 ├── app/
 │   ├── Controllers/         # Application controllers
+│   ├── Middlewares/         # Routing protectors
+│   ├── db/                  # Application schemas
 │   ├── Models/              # Application models
 │   └── index.php            # App bootstrap (creates Router, loads modules, processes URI)
 ├── config/
@@ -49,7 +51,7 @@ Atlas/
 2. If the request has an `HTTP_REFERER`, it is treated as a static asset request — the file is served directly via `CompileEngine`.
 3. Otherwise, the URL is validated against a character whitelist and rate-limited via a session-based token bucket.
 4. **`app/index.php`** is loaded — it creates the `Router`, loads modules via `ModuleEngine`, includes `routes.php`, and calls `$router->ProcessUri()`.
-5. The **Router** matches the URI against registered routes (exact match or segment-boundary prefix). On match, it instantiates the controller and calls the method with any extra path segments as arguments.
+5. The **Router** matches the URI against registered routes (exact match or segment-boundary prefix). On match, it calls all middleware classes, and if nothing returned false; it instantiates the controller and calls the method with any extra path segments as arguments.
 6. Controllers call `$this->view()` which compiles and renders Flux templates, or `$this->redirect()` for local redirects.
 
 ## ⭕ Core Components
@@ -62,13 +64,47 @@ Routes are registered via static helpers on `Route`:
 use Libraries\Classes\Routing\Route;
 use App\Controllers\WelcomeController;
 
-Route::Get("/welcome", [WelcomeController::class, "WelcomePage"]);
+Route::Get("/welcome", [WelcomeController::class, "WelcomePage"], [AuthMiddleware::class]);
 Route::Post("/submit", [SomeController::class, "handleSubmit"]);
 ```
 
 - Routes match by exact URI or segment boundary (e.g. `/welcome` matches `/welcome` and `/welcome/foo` but not `/welcomepage`).
 - Extra path segments after the route URI are passed as arguments to the controller method.
+- Third arguments are optional, but must be an array. This is an array of middlewares to check on route execution.
 - Supported HTTP methods: `GET`, `POST` (via `RouteActions` enum).
+
+### Middlewares
+
+A middleware must return true or false, in any case.
+False defines that the user can't access this route and will be forwarded to the forbidden page.
+True will give the user access to the route.
+
+```php
+namespace App\Middlewares;
+
+use Libraries\Classes\Routing\Middleware;
+
+class AuthMiddleware extends Middleware
+{
+    public function Handle(): bool
+    {
+        return isset($_SESSION['user']);
+    }
+
+    public function OnDeny(): void
+    {
+        http_response_code(401);
+        $this->view("ErrorPage", ['code' => '401', 'msg' => 'Unauthorized']);
+        exit();
+    }
+}
+
+```
+
+**Available methods:**
+
+- `view(string $viewName, array $data = [])` — renders a Flux template from `app/views/`
+- `redirect(string $url)` — local redirect only (paths starting with `/`, blocks `//` and external URLs)
 
 ### Controllers
 
@@ -181,19 +217,14 @@ Custom template syntax compiled to PHP and cached in `public/cache/compiled/`:
 <h1>{{ $title }}</h1>
 
 <!-- Components -->
-@component('header')
-@component('sidebar', 'moduleName')
+@component('header') @component('sidebar', 'moduleName')
 
 <!-- Control structures -->
 @foreach($items as $item)
 <p>{{ $item->name }}</p>
-@endforeach
-
-@if($user->isAdmin())
+@endforeach @if($user->isAdmin())
 <span>Admin</span>
-@endif
-
-@for($i = 0; $i < 10; $i++)
+@endif @for($i = 0; $i < 10; $i++)
 <p>{{ $i }}</p>
 @endfor
 ```
