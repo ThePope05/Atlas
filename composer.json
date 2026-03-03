@@ -10,6 +10,7 @@
 			"Libraries\\Classes\\": "libraries/classes/",
 			"App\\Controllers\\": "app/Controllers/",
 			"App\\Models\\": "app/Models/",
+			"App\\Middlewares\\": "app/Middlewares/",
 			"Modules\\": "modules/"
 		}
 	}

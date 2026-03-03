@@ -51,15 +51,25 @@ class Router
                 $extra = trim(substr($uri, strlen($route->Uri)), '/');
                 $params = $extra !== '' ? explode('/', $extra) : [];
 
+                if (!$route->RunMiddlewares())
+                    break;
+
                 $class = new $route->Class();
                 call_user_func_array([$class, $route->Method], $params);
                 return;
             }
         }
 
-        $viewEngine = new \Libraries\Classes\FileCompiler\ViewEngine();
-        $viewEngine->TryGetFile("forbiddenpage");
         http_response_code(404);
+        $viewEngine = new \Libraries\Classes\FileCompiler\ViewEngine();
+        $viewEngine->TryGetFile(
+            "ErrorPage",
+            [
+                "msg" => "Oops, this page can't be found!",
+                "code" => "404"
+            ]
+        );
+        exit;
     }
 
     public function GetUri()

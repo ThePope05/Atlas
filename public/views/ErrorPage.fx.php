@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <link rel="stylesheet" href="/public/css/style.css">
-    <title>Not found</title>
+    <title>{{ $code }}</title>
 </head>
 
 <body>
-    <h1 class="error-msg">Oops, this page can't be found!</h1>
-    <h2>404</h2>
+    <h1 class="error-msg">{{ $msg }}</h1>
+    <h2>{{ $code }}</h2>
 </body>
 
 </html>

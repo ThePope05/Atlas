@@ -13,7 +13,7 @@ class CompileEngine
     public function TryGetFile(string $filename)
     {
 
-        if (!file_exists($this->cachePath))
+        if (!is_dir($this->cachePath))
             mkdir($this->cachePath, 0777, true);
 
         $fullFilePath = $this->getReadPath($filename);
