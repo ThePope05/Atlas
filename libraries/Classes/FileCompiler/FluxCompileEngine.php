@@ -94,6 +94,12 @@ class FluxCompileEngine extends CompileEngine
         );
 
         $contents = preg_replace(
+            '/@else/',
+            '<?php else: ?>',
+            $contents
+        );
+
+        $contents = preg_replace(
             '/@endif/',
             '<?php endif; ?>',
             $contents
