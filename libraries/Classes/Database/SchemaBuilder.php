@@ -43,7 +43,7 @@ class SchemaBuilder
                 $unique[] = "UNIQUE (`{$name}`)";
             }
 
-            if (in_array('foreign', $col)) {
+            if (array_key_exists('foreign', $col)) {
                 $foreignKeys[] = $this->compileForeignKey($table, $name, $col['foreign']);
             }
         }
