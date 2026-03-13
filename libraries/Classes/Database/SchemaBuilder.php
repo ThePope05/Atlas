@@ -73,7 +73,7 @@ class SchemaBuilder
             $sql .= ' UNSIGNED';
         }
 
-        $sql .= (in_array('not_null', $col) || in_array('primary', $col)) ? ' NOT NULL' : 'NULL';
+        $sql .= (in_array('not_null', $col) || in_array('primary', $col)) ? ' NOT NULL' : ' NULL';
 
         if (in_array('default', $col)) {
             $sql .= ' DEFAULT ' . $this->compileDefault($col['default']);

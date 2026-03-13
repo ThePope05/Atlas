@@ -14,11 +14,14 @@ include __DIR__ . '/libraries/Constants/GlobalFunctions.php';
 use Libraries\Classes\FileCompiler\CompileEngine;
 
 $url = $_SERVER['REQUEST_URI'];
-if (isset($_SERVER['HTTP_REFERER'])) {
-    // Get the file extension
-    //var_dump($_SERVER);
-    $extension = pathinfo($url, PATHINFO_EXTENSION);
+$path = parse_url($url, PHP_URL_PATH);
+$file = __DIR__ . $path;
+$extension = pathinfo($url, PATHINFO_EXTENSION);
 
+session_start();
+
+
+if (isset($_SERVER['HTTP_REFERER']) && isset($extension)) {
     // Set the Content-Type header based on the file extension
     if (isset($extension)) {
         switch ($extension) {
@@ -52,10 +55,8 @@ if (isset($_SERVER['HTTP_REFERER'])) {
         header('Content-Type: text/html');
     }
 
-    $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-    $file = __DIR__ . $path;
     // Check if the file exists
-    if (file_exists($file)) {
+    if (is_file($file)) {
         // If the file exists, output its contents
         $compileEngine = new CompileEngine();
         $compileEngine->TryGetFile($path);
@@ -72,8 +73,6 @@ if (isset($_SERVER['HTTP_REFERER'])) {
         http_response_code(403);
         exit();
     }
-
-    session_start();
 
     // Set the maximum number of tokens and the refill rate
     $max_tokens = 100;

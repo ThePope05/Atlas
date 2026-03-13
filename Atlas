@@ -9,366 +9,357 @@ use Libraries\Classes\Routing\Router;
 
 define("TS_Reset", "\033[0m");
 
-$terminalColors = [
-    "red" => "\033[31m",
-    "green" => "\033[32m",
-    "yellow" => "\033[33m",
-    "blue" => "\033[34m",
+const TERMINAL_COLORS = [
+    "red"     => "\033[31m",
+    "green"   => "\033[32m",
+    "yellow"  => "\033[33m",
+    "blue"    => "\033[34m",
     "magenta" => "\033[35m",
-    "cyan" => "\033[36m",
-    "white" => "\033[37m",
+    "cyan"    => "\033[36m",
+    "white"   => "\033[37m",
 ];
 
-$terminalStyles = [
-    "bold" => "\033[1m",
+const TERMINAL_STYLES = [
+    "bold"      => "\033[1m",
     "underline" => "\033[4m",
-    "blink" => "\033[5m",
-    "reverse" => "\033[7m",
-    "hidden" => "\033[8m",
+    "blink"     => "\033[5m",
+    "reverse"   => "\033[7m",
+    "hidden"    => "\033[8m",
 ];
 
-$pluralExceptions = [
-    "s",
-    "x",
-    "z",
-    "ch",
-    "sh"
-];
+const PLURAL_EXCEPTIONS = ["s", "x", "z", "ch", "sh"];
 
 if (!isset($argv[1]))
     exit();
 
-if (strtoupper($argv[1]) == "CREATE") {
-    if (isset($argv[2])) {
-        $templatePath = __DIR__ . "/libraries/classes/templates/";
-        $writePathPrefix = __DIR__ . "/app/";
-        $viewWritePathPrefix = __DIR__ . "/public/";
-        $namespaceName = "App";
-        $isModule = false;
+$command = strtoupper($argv[1]);
 
-        $moduleArg = findArgFollowsRegex("/-mod=.*/");
-        $moduleSaveName = "";
-        if (isset($moduleArg))
-            $moduleSaveName = explode("=", $moduleArg)[1];
-
-        if ($moduleSaveName != "") {
-            if (is_dir(__DIR__ . "/modules/$moduleSaveName/")) {
-                $isModule = true;
-                $namespaceName = "Modules\\$moduleSaveName";
-                $writePathPrefix = __DIR__ . "/modules/$moduleSaveName/";
-                $viewWritePathPrefix = __DIR__ . "/modules/$moduleSaveName/";
-            } else {
-                writeTerminalLine(["bold", "yellow"], "No module found...");
-                cancelScript();
-            }
-        }
+match (true) {
+    $command === 'CREATE'                    => handleCreate($argv),
+    $command === 'CACHE:CLEAR'               => handleCacheClear(),
+    str_starts_with($command, 'DB')          => handleDb($argv),
+    $command === 'DEV'                       => handleDev(),
+    $command === 'ROUTES:LIST'               => handleRoutesList(),
+    $command === 'HELP'                      => handleHelp(),
+    default                                  => (function () {
+        writeTerminalLine('yellow', "Command not found\n");
+        handleHelp();
+        exitScript();
+    })()
+};
 
 
-        $passedName = $argv[2];
-        $controllerName = ucfirst($passedName) . "Controller";
-        $modelName = ucfirst($passedName) . "Model";
-        $moduleName = ucfirst($passedName) . "Module";
-        $middlewareName = ucfirst($passedName) . "Middleware";
-        $viewName = ucfirst($passedName);
-        $componentName = $passedName;
-        $dbName = strtolower($passedName);
+// ─── Command handlers ────────────────────────────────────────────────────────
 
-        $plurarizer = "s";
-        foreach ($pluralExceptions as $exception) {
-            if (str_ends_with($dbName, $exception)) {
-                $plurarizer = "es";
-                break;
-            }
-        }
-        $dbName = $dbName . $plurarizer;
-
-
-        if (in_array("-m", $argv) || in_array("-a", $argv)) {
-
-            $modelContent = file_get_contents($templatePath . "ModelTemplate.php");
-
-            $modelContent = str_replace("MODEL_NAME", $modelName, $modelContent);
-            $modelContent = str_replace("TABLE_NAME", $dbName, $modelContent);
-            $modelContent = str_replace("NAMESPACE_NAME", $namespaceName, $modelContent);
-
-            if (!is_dir($writePathPrefix . "Models"))
-                mkdir($writePathPrefix . "Models");
-
-            file_put_contents($writePathPrefix . "Models/" . $modelName . ".php", $modelContent) or die("Unable to open file!");
-
-            writeTerminalLine(["bold", "green"], "Created new model...");
-        }
-        if (in_array("-mid", $argv)) {
-
-            $middlewareContent = file_get_contents($templatePath . "MiddlewareTemplate.php");
-
-            $middlewareContent = str_replace("MIDDLEWARE_NAME", $middlewareName, $middlewareContent);
-
-            if (!is_dir($writePathPrefix . "Middlewares"))
-                mkdir($writePathPrefix . "Middlewares");
-
-            file_put_contents($writePathPrefix . "Middlewares/" . $middlewareName . ".php", $middlewareContent) or die("Unable to open file!");
-
-            writeTerminalLine(["bold", "green"], "Created new middleware...");
-        }
-        if (in_array("-mod", $argv)) {
-            if (is_dir(__DIR__ . "/modules/$moduleName")) {
-                writeTerminalLine(["bold", "red"], "Module with this name already exists..");
-                cancelScript();
-            } else {
-                mkdir(__DIR__ . "/modules/$moduleName");
-            }
-
-            scanCopyDir(__DIR__ . "/modules/$moduleName", __DIR__ . "/libraries/Classes/Templates/ModuleTemplate", $moduleName);
-
-            $moduleJsonPath = __DIR__ . "/config/modules.json";
-            $existingModules = [];
-            if (file_exists($moduleJsonPath)) {
-                $content = file_get_contents($moduleJsonPath);
-                $existingModules = json_decode($content, true);
-            }
-
-            $newModule = ["name" => $moduleName, "version" => "0.1", "enabled" => true];
-
-            $existingModules[] = $newModule;
-
-            $unique_array = [];
-            foreach ($existingModules as $element) {
-                $hash = $element["name"];
-                $unique_array[$hash] = $element;
-            }
-            $result = array_values($unique_array);
-
-            file_put_contents(
-                $moduleJsonPath,
-                json_encode($result, JSON_PRETTY_PRINT)
-            );
-        }
-        if (in_array("-c", $argv) || in_array("-a", $argv)) {
-            $controllerContent = file_get_contents($templatePath . "ControllerTemplate.php");
-
-            $controllerContent = str_replace("CONTROLLER_NAME", $controllerName, $controllerContent);
-
-            $addModelSnippet = "";
-            if (in_array("-m", $argv) || in_array("-a", $argv)) {
-                $addModelSnippet = file_get_contents($templatePath . "AddModelTemplate.php");
-
-                $addModelSnippet = str_replace("MODEL_NAME", $modelName, $addModelSnippet);
-            }
-            $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
-            $controllerContent = str_replace("NAMESPACE_NAME", $namespaceName, $controllerContent);
-
-            file_put_contents($writePathPrefix . "controllers/" . $controllerName . ".php", $controllerContent) or die("Unable to open file!");
-
-            writeTerminalLine(["bold", "green"], "Created new controller...");
-        }
-        if (in_array("-v", $argv)) {
-
-            $viewContent = file_get_contents($templatePath . "ViewTemplate.fx.php");
-            $path = "";
-
-            if (str_contains($viewName, "/")) {
-                $pathParts = explode("/", $viewName);
-                $viewName = $pathParts[count($pathParts) - 1];
-                $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
-                $path = join("/", $pathParts);
-
-                mkdir($viewWritePathPrefix . "views/" . $path, 0777, true);
-            }
-
-            $viewContent = str_replace("VIEW_NAME", $viewName, $viewContent);
-
-            file_put_contents($viewWritePathPrefix . "views/" . $path . (($path != "") ? "/" : "") . $viewName . ".fx.php", $viewContent) or die("Unable to open file!");
-
-            writeTerminalLine(["bold", "green"], "Created new view...");
-        }
-        if (in_array("-comp", $argv)) {
-
-            $componentContent = file_get_contents($templatePath . "ComponentTemplate.fx.php");
-
-            $path = "";
-
-            if (str_contains($componentName, "/")) {
-                $pathParts = explode("/", $componentName);
-                $componentName = $pathParts[count($pathParts) - 1];
-                $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
-                $path = strtolower(join("/", $pathParts));
-
-                if (!is_dir($viewWritePathPrefix . "components/" . $path))
-                    mkdir($viewWritePathPrefix . "components/" . $path, 0777, true);
-            }
-
-            $componentContent = str_replace("COMPONENT_NAME", $componentName, $componentContent);
-
-            file_put_contents($viewWritePathPrefix . "components/" . $path . (($path != "") ? "/" : "") . $componentName . ".fx.php", $componentContent) or die("Unable to create file!");
-
-            writeTerminalLine(["bold", "green"], "Created new component...");
-        }
-        if (in_array("-d", $argv) || in_array("-a", $argv)) {
-            if (!is_dir($writePathPrefix . "db"))
-                mkdir($writePathPrefix . "db");
-
-            $path = $writePathPrefix . "db/";
-
-            //Create the database
-            $dbContent = file_get_contents($templatePath . "SchemaTemplate.php");
-
-            $dbContent = str_replace("TABLE_NAME", $dbName, $dbContent);
-
-            file_put_contents($path . getNewSchemaName($dbName), $dbContent) or die("Unable to open file!");
-
-            writeTerminalLine(["bold", "green"], "Created new database file...");
-        }
-
-        cancelScript();
+function handleCreate(array $argv): void
+{
+    if (!isset($argv[2])) {
+        exitScript();
     }
-} else if (strtoupper($argv[1]) == "CACHE:CLEAR") {
-    $files = glob('./public/cache/compiled/*');
 
-    foreach ($files as $file) {
+    $templatePath      = __DIR__ . "/libraries/classes/templates/";
+    $writePathPrefix   = __DIR__ . "/app/";
+    $viewWritePathPrefix = __DIR__ . "/public/";
+    $namespaceName     = "App";
+
+    $moduleArg      = findArgFollowsRegex("/-mod=.*/", $argv);
+    $moduleSaveName = "";
+    if (isset($moduleArg))
+        $moduleSaveName = explode("=", $moduleArg)[1];
+
+    if ($moduleSaveName !== "") {
+        if (is_dir(__DIR__ . "/modules/$moduleSaveName/")) {
+            $namespaceName       = "Modules\\$moduleSaveName";
+            $writePathPrefix     = __DIR__ . "/modules/$moduleSaveName/";
+            $viewWritePathPrefix = __DIR__ . "/modules/$moduleSaveName/";
+        } else {
+            writeTerminalLine('yellow', "No module found...");
+            exitScript();
+        }
+    }
+
+    $passedName     = $argv[2];
+    $controllerName = ucfirst($passedName) . "Controller";
+    $modelName      = ucfirst($passedName) . "Model";
+    $moduleName     = ucfirst($passedName) . "Module";
+    $middlewareName = ucfirst($passedName) . "Middleware";
+    $viewName       = ucfirst($passedName);
+    $componentName  = $passedName;
+    $dbName         = strtolower($passedName);
+
+    $plurarizer = "s";
+    foreach (PLURAL_EXCEPTIONS as $exception) {
+        if (str_ends_with($dbName, $exception)) {
+            $plurarizer = "es";
+            break;
+        }
+    }
+    $dbName .= $plurarizer;
+
+    if (in_array("-m", $argv) || in_array("-a", $argv)) {
+        $modelContent = file_get_contents($templatePath . "ModelTemplate.php");
+        $modelContent = str_replace("MODEL_NAME", $modelName, $modelContent);
+        $modelContent = str_replace("TABLE_NAME", $dbName, $modelContent);
+        $modelContent = str_replace("NAMESPACE_NAME", $namespaceName, $modelContent);
+
+        if (!is_dir($writePathPrefix . "Models"))
+            mkdir($writePathPrefix . "Models");
+
+        file_put_contents($writePathPrefix . "Models/" . $modelName . ".php", $modelContent)
+            or die("Unable to open file!");
+
+        writeTerminalLine('green', "Created new model...");
+    }
+
+    if (in_array("-mid", $argv)) {
+        $middlewareContent = file_get_contents($templatePath . "MiddlewareTemplate.php");
+        $middlewareContent = str_replace("MIDDLEWARE_NAME", $middlewareName, $middlewareContent);
+
+        if (!is_dir($writePathPrefix . "Middlewares"))
+            mkdir($writePathPrefix . "Middlewares");
+
+        file_put_contents($writePathPrefix . "Middlewares/" . $middlewareName . ".php", $middlewareContent)
+            or die("Unable to open file!");
+
+        writeTerminalLine('green', "Created new middleware...");
+    }
+
+    if (in_array("-mod", $argv)) {
+        if (is_dir(__DIR__ . "/modules/$moduleName")) {
+            writeTerminalLine('red', "Module with this name already exists..");
+            exitScript();
+        }
+
+        mkdir(__DIR__ . "/modules/$moduleName");
+        scanCopyDir(__DIR__ . "/modules/$moduleName", __DIR__ . "/libraries/Classes/Templates/ModuleTemplate", $moduleName);
+
+        $moduleJsonPath   = __DIR__ . "/config/modules.json";
+        $existingModules  = [];
+        if (file_exists($moduleJsonPath)) {
+            $existingModules = json_decode(file_get_contents($moduleJsonPath), true);
+        }
+
+        $existingModules[] = ["name" => $moduleName, "version" => "0.1", "enabled" => true];
+
+        $unique_array = [];
+        foreach ($existingModules as $element) {
+            $unique_array[$element["name"]] = $element;
+        }
+
+        file_put_contents($moduleJsonPath, json_encode(array_values($unique_array), JSON_PRETTY_PRINT));
+    }
+
+    if (in_array("-c", $argv) || in_array("-a", $argv)) {
+        $controllerContent = file_get_contents($templatePath . "ControllerTemplate.php");
+        $controllerContent = str_replace("CONTROLLER_NAME", $controllerName, $controllerContent);
+
+        $addModelSnippet = "";
+        if (in_array("-m", $argv) || in_array("-a", $argv)) {
+            $addModelSnippet = file_get_contents($templatePath . "AddModelTemplate.php");
+            $addModelSnippet = str_replace("MODEL_NAME", $modelName, $addModelSnippet);
+        }
+        $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
+        $controllerContent = str_replace("NAMESPACE_NAME", $namespaceName, $controllerContent);
+
+        file_put_contents($writePathPrefix . "controllers/" . $controllerName . ".php", $controllerContent)
+            or die("Unable to open file!");
+
+        writeTerminalLine('green', "Created new controller...");
+    }
+
+    if (in_array("-v", $argv)) {
+        $viewContent = file_get_contents($templatePath . "ViewTemplate.fx.php");
+        $path        = "";
+
+        if (str_contains($viewName, "/")) {
+            $pathParts = explode("/", $viewName);
+            $viewName  = $pathParts[count($pathParts) - 1];
+            $pathParts = array_splice($pathParts, 0, count($pathParts) - 1);
+            $path      = join("/", $pathParts);
+
+            mkdir($viewWritePathPrefix . "views/" . $path, 0777, true);
+        }
+
+        $viewContent = str_replace("VIEW_NAME", $viewName, $viewContent);
+
+        file_put_contents(
+            $viewWritePathPrefix . "views/" . $path . (($path !== "") ? "/" : "") . $viewName . ".fx.php",
+            $viewContent
+        ) or die("Unable to open file!");
+
+        writeTerminalLine('green', "Created new view...");
+    }
+
+    if (in_array("-comp", $argv)) {
+        $componentContent = file_get_contents($templatePath . "ComponentTemplate.fx.php");
+        $path             = "";
+
+        if (str_contains($componentName, "/")) {
+            $pathParts     = explode("/", $componentName);
+            $componentName = $pathParts[count($pathParts) - 1];
+            $pathParts     = array_splice($pathParts, 0, count($pathParts) - 1);
+            $path          = strtolower(join("/", $pathParts));
+
+            if (!is_dir($viewWritePathPrefix . "components/" . $path))
+                mkdir($viewWritePathPrefix . "components/" . $path, 0777, true);
+        }
+
+        $componentContent = str_replace("COMPONENT_NAME", $componentName, $componentContent);
+
+        file_put_contents(
+            $viewWritePathPrefix . "components/" . $path . (($path !== "") ? "/" : "") . $componentName . ".fx.php",
+            $componentContent
+        ) or die("Unable to create file!");
+
+        writeTerminalLine('green', "Created new component...");
+    }
+
+    if (in_array("-d", $argv) || in_array("-a", $argv)) {
+        if (!is_dir($writePathPrefix . "db"))
+            mkdir($writePathPrefix . "db");
+
+        $dbContent = file_get_contents($templatePath . "SchemaTemplate.php");
+        $dbContent = str_replace("TABLE_NAME", $dbName, $dbContent);
+
+        file_put_contents($writePathPrefix . "db/" . getNewSchemaName($dbName), $dbContent)
+            or die("Unable to open file!");
+
+        writeTerminalLine('green', "Created new database file...");
+    }
+
+    exitScript();
+}
+
+function handleCacheClear(): void
+{
+    foreach (glob('./public/cache/compiled/*') as $file) {
         unlink($file);
     }
-} else if (str_starts_with(strtoupper($argv[1]), "DB")) {
+}
+
+function handleDb(array $argv): void
+{
     require_once './config/config.php';
 
     $pdo = new PDO('mysql:host=' . DB_HOST, DB_USER, DB_PASS);
-    $migrationFile = './app/db/.migrations.json';
+
     if (str_ends_with(strtoupper($argv[1]), ":REFRESH")) {
-        writeTerminalLine(["bold", "yellow"], "This will rebuild/wipe the database, continue? (y):");
+        writeTerminalLine('yellow', "This will rebuild/wipe the database, continue? (y):");
         $proceed = readline('');
 
-        if ($proceed == 'y' || $proceed == '') {
+        if ($proceed === 'y' || $proceed === '') {
             $pdo->exec('DROP DATABASE IF EXISTS `' . DB_NAME . '`');
             $pdo->exec('CREATE DATABASE `' . DB_NAME . '`');
             $pdo->exec('USE `' . DB_NAME . '`');
         }
     }
 
-    $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME;
-
     try {
-        $pdo = new PDO($dsn, DB_USER, DB_PASS);
+        $pdo = new PDO('mysql:host=' . DB_HOST . ';dbname=' . DB_NAME, DB_USER, DB_PASS);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
-        writeTerminalLine(["bold", "red"], "Connection failed: " . $e->getMessage());
-        writeTerminalLine(["bold", "yellow"], "Possible database creation required");
-
-        writeTerminalLine(["bold", "yellow"], "Do you want to attempt database creation? (y):");
+        writeTerminalLine('red', "Connection failed: " . $e->getMessage());
+        writeTerminalLine('yellow', "Possible database creation required");
+        writeTerminalLine('yellow', "Do you want to attempt database creation? (y):");
         $proceed = readline('');
 
-        if ($proceed == 'y' || $proceed == '') {
+        if ($proceed === 'y' || $proceed === '') {
             try {
                 $pdo = new PDO('mysql:host=' . DB_HOST, DB_USER, DB_PASS);
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-                $sql = 'CREATE DATABASE ' . DB_NAME . '; USE ' . DB_NAME;
-                $pdo->exec($sql);
-
-                writeTerminalLine(["bold", "green"], "Database created successfully");
+                $pdo->exec('CREATE DATABASE ' . DB_NAME . '; USE ' . DB_NAME);
+                writeTerminalLine('green', "Database created successfully");
             } catch (PDOException $e) {
-                writeTerminalLine(["bold", "red"], "Database creation failed: " . $e->getMessage());
-                cancelScript();
+                writeTerminalLine('red', "Database creation failed: " . $e->getMessage());
+                exitScript();
             }
         } else {
-            cancelScript();
+            exitScript();
         }
     }
 
     $schemaBuilder = new SchemaBuilder($pdo);
-    $schemaEngine = new SchemaEngine();
-
-    // if (isset($argv[2])) {
-    //     $schemaEngine->RunSchema($schemaBuilder, $argv[2]);
-    //     cancelScript();
-    // }
+    $schemaEngine  = new SchemaEngine();
 
     if (str_ends_with(strtoupper($argv[1]), ":REFRESH"))
         $schemaEngine->ClearRunSchemas();
 
     $schemaEngine->RunUp($schemaBuilder);
 
-    cancelScript();
-} else if (strtoupper($argv[1]) == "DEV") {
+    exitScript();
+}
+
+function handleDev(): void
+{
     include_once 'config/config.php';
 
-    $server = DB_HOST . ":" . PORT;
-
     removeAllTerminalStyles();
-    shell_exec(sprintf('php -S %s router.php', $server) . " -c app/config/php.ini");
-} else if (strtoupper($argv[1]) == "ROUTES:LIST") {
-    $router = new Router();
+    shell_exec(sprintf('php -S %s router.php', DB_HOST . ":" . PORT) . " -c app/config/php.ini");
+}
+
+function handleRoutesList(): void
+{
+    $router       = new Router();
     $moduleLoader = new ModuleEngine();
 
     require "./routes.php";
     $moduleLoader->LoadModules();
     $router->LogRoutes();
-} else if (strtoupper($argv[1]) == "HELP") {
-    writeHelpFunction();
-    cancelScript();
-} else {
-    writeTerminalLine(["bold", "yellow"], "Command not found\n");
-    writeHelpFunction();
-    cancelScript();
+}
+
+function handleHelp(): void
+{
+    writeTerminalLine('yellow', "Available commands:");
+    writeTerminalLine('yellow', " - create [name] -m -c -v -comp -mod -mid -a -d");
+    writeTerminalLine('yellow', " - db");
+    writeTerminalLine('yellow', " - dev");
+    writeTerminalLine('yellow', " - routes:list");
+    writeTerminalLine('yellow', " - cache:clear");
+    exitScript();
 }
 
 
-function writeTerminalLine($style = ["bold", "red"], $text = "No Text Specified")
-{
-    global $terminalColors;
-    global $terminalStyles;
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
+function writeTerminalLine(string $color, string $text, string|array $styles = 'bold'): void
+{
     echo "\n";
 
-    if (!is_array($style[0])) {
-        $style[0] = [$style[0]];
-    }
-    foreach ($style[0] as $styleName) {
-        echo $terminalStyles[$styleName];
+    foreach ((array) $styles as $style) {
+        echo TERMINAL_STYLES[$style];
     }
 
-
-    echo $terminalColors[$style[1]] . $text . "\n" . TS_Reset;
+    echo TERMINAL_COLORS[$color] . $text . "\n" . TS_Reset;
 }
 
-function removeAllTerminalStyles()
+function removeAllTerminalStyles(): void
 {
     echo TS_Reset;
 }
 
-function cancelScript($message = "")
+function exitScript(): void
 {
     echo TS_Reset . "\n";
     exit();
 }
 
-function writeHelpFunction()
+function getNewSchemaName(string $schemaName): string
 {
-    writeTerminalLine(["bold", "yellow"], "Available commands:");
-    writeTerminalLine(["bold", "yellow"], " - create [name] -m -c -v -comp -mod -a -d");
-    writeTerminalLine(["bold", "yellow"], " - db");
-    writeTerminalLine(["bold", "yellow"], " - localhost");
-    writeTerminalLine(["bold", "yellow"], " - routes:list");
-    writeTerminalLine(["bold", "yellow"], " - cache:clear");
-}
+    $allDbFiles = array_merge(
+        glob('./app/db/*.php'),
+        glob('./modules/*/db/*.php')
+    );
 
-function getNewSchemaName(string $schemaName)
-{
-    $allGeneralSchemaFiles = glob('./app/db/*.php');
-    $allModuleSchemaFiles = glob('./modules/*/db/*.php');
-    $allDbFiles = array_merge($allGeneralSchemaFiles, $allModuleSchemaFiles);
-
-    $fileCount = count($allDbFiles) + 1;
-    $fileNumber = ($fileCount < 10) ? (string)('0' . $fileCount) : $fileCount;
+    $fileCount  = count($allDbFiles) + 1;
+    $fileNumber = ($fileCount < 10) ? '0' . $fileCount : (string) $fileCount;
 
     return $fileNumber . "_create_table_" . $schemaName . ".php";
 }
 
-function findArgFollowsRegex($regex)
+function findArgFollowsRegex(string $regex, array $argv): ?string
 {
-    global $argv;
-    foreach ($argv as $index => $arg) {
+    foreach ($argv as $arg) {
         if (preg_match($regex, $arg)) {
-            var_dump($arg);
             return $arg;
         }
     }
@@ -376,47 +367,39 @@ function findArgFollowsRegex($regex)
     return null;
 }
 
-function scanCopyDir($dir = "", $templateDir = "", $moduleName)
+function scanCopyDir(string $dir, string $templateDir, string $moduleName): void
 {
+    foreach (scandir($templateDir) as $file) {
+        if ($file === '.' || $file === '..') continue;
 
-    $allFiles = scandir($templateDir);
-
-    foreach ($allFiles as $file) {
-        if ($file != "." && $file != "..") {
-            if (!is_dir($templateDir . "/" . $file)) {
-                $fileCopy = copyModuleFile($templateDir, $dir, $file, $moduleName);
-                if ($fileCopy) {
-                    writeTerminalLine(["bold", "green"], "Created " . $file);
-                } else {
-                    writeTerminalLine(["bold", "red"], "Failed to create " . $file);
-                    unlink($dir);
-                    cancelScript();
-                }
+        if (!is_dir($templateDir . "/" . $file)) {
+            if (copyModuleFile($templateDir, $dir, $file, $moduleName)) {
+                writeTerminalLine('green', "Created " . $file);
             } else {
-                $newDir = mkdir($dir . "/" . $file, 0777);
-                if ($newDir) {
-                    writeTerminalLine(["bold", "green"], "Created " . $file);
-
-                    scanCopyDir($dir . "/" . $file . "/", $templateDir . "/" . $file . "/", $moduleName);
-                } else {
-                    writeTerminalLine(["bold", "red"], "Failed to create " . $file);
-                    unlink($dir);
-                    cancelScript();
-                }
+                writeTerminalLine('red', "Failed to create " . $file);
+                unlink($dir);
+                exitScript();
+            }
+        } else {
+            if (mkdir($dir . "/" . $file, 0777)) {
+                writeTerminalLine('green', "Created " . $file);
+                scanCopyDir($dir . "/" . $file . "/", $templateDir . "/" . $file . "/", $moduleName);
+            } else {
+                writeTerminalLine('red', "Failed to create " . $file);
+                unlink($dir);
+                exitScript();
             }
         }
     }
 }
 
-
-function copyModuleFile($from, $to, $fileName, $moduleName)
+function copyModuleFile(string $from, string $to, string $fileName, string $moduleName): bool
 {
     $newFileName = str_replace("MODULE_NAME", $moduleName, $fileName);
-    $copiedFile = copy($from . "/" . $fileName, $to . "/" . $newFileName);
+    $copied      = copy($from . "/" . $fileName, $to . "/" . $newFileName);
 
-    $copiedFileContent = file_get_contents($to . "/" . $newFileName);
-    $copiedFileContent = str_replace("MODULE_NAME", $moduleName, $copiedFileContent);
-    file_put_contents($to . "/" . $newFileName, $copiedFileContent);
+    $content = file_get_contents($to . "/" . $newFileName);
+    file_put_contents($to . "/" . $newFileName, str_replace("MODULE_NAME", $moduleName, $content));
 
-    return $copiedFile;
+    return $copied;
 }
