@@ -75,7 +75,7 @@ class SchemaBuilder
 
         $sql .= (in_array('not_null', $col) || in_array('primary', $col)) ? ' NOT NULL' : ' NULL';
 
-        if (in_array('default', $col)) {
+        if (array_key_exists('default', $col)) {
             $sql .= ' DEFAULT ' . $this->compileDefault($col['default']);
         }
 
