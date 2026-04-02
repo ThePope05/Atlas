@@ -278,10 +278,10 @@ The config file (`config/config.php`, copied from `config/example.config.php`) l
 The `Atlas` file in the project root is a CLI tool for scaffolding and running the dev server:
 
 ```bash
-php Atlas dev                   # Start the dev server
-php Atlas create [name] [option]  # Scaffolds template files
-php Atlas db                    # Run migrations
-php Atlas db:refresh            # Run migrations
+php Atlas dev                       # Start the dev server
+php Atlas create [name] [option]    # Scaffolds template files
+php Atlas db                        # Run migrations
+php Atlas db:refresh                # Run migrations
 ```
 
 Options to use for the scaffold/create commands are:
@@ -294,6 +294,11 @@ Options to use for the scaffold/create commands are:
 -mod                            #module
 -mid                            #middleware
 -comp                           #component
+```
+
+You can add another argument to make the file for a specific module:
+```bash
+-mod=[name]
 ```
 
 ## 🔐 Security Notes
