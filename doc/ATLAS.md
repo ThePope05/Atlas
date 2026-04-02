@@ -279,7 +279,7 @@ The `Atlas` file in the project root is a CLI tool for scaffolding and running t
 
 ```bash
 php Atlas dev                   # Start the dev server
-php Atlas make [name] [option]  # Scaffolds template files
+php Atlas create [name] [option]  # Scaffolds template files
 php Atlas db                    # Run migrations
 php Atlas db:refresh            # Run migrations
 ```
