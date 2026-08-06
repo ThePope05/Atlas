@@ -57,7 +57,7 @@ function handleCreate(array $argv): void
         exitScript();
     }
 
-    $templatePath      = __DIR__ . "/libraries/classes/templates/";
+    $templatePath      = __DIR__ . "/libraries/Classes/Templates/";
     $writePathPrefix   = __DIR__ . "/app/";
     $viewWritePathPrefix = __DIR__ . "/public/";
     $namespaceName     = "App";
@@ -161,7 +161,10 @@ function handleCreate(array $argv): void
         $controllerContent = str_replace("//ADD_MODEL", $addModelSnippet, $controllerContent);
         $controllerContent = str_replace("NAMESPACE_NAME", $namespaceName, $controllerContent);
 
-        file_put_contents($writePathPrefix . "controllers/" . $controllerName . ".php", $controllerContent)
+        if (!is_dir($writePathPrefix . "Controllers"))
+            mkdir($writePathPrefix . "Controllers");
+
+        file_put_contents($writePathPrefix . "Controllers/" . $controllerName . ".php", $controllerContent)
             or die("Unable to open file!");
 
         writeTerminalLine('green', "Created new controller...");
