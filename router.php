@@ -1,4 +1,5 @@
 <?php
+ob_start();
 
 // phpinfo();
 // exit;
@@ -10,8 +11,6 @@
 //We need to start by making sure the url is valid
 include __DIR__ . '/vendor/autoload.php';
 include __DIR__ . '/libraries/Constants/GlobalFunctions.php';
-
-use Libraries\Classes\FileCompiler\CompileEngine;
 
 $url = $_SERVER['REQUEST_URI'];
 $path = parse_url($url, PHP_URL_PATH);
@@ -57,9 +56,10 @@ if (isset($_SERVER['HTTP_REFERER']) && isset($extension)) {
 
     // Check if the file exists
     if (is_file($file)) {
-        // If the file exists, output its contents
-        $compileEngine = new CompileEngine();
-        $compileEngine->TryGetFile($path);
+        // Static assets must not pass through the compile engine, it includes
+        // them as PHP, which mangles binaries and executes any <?php an
+        // uploaded file happens to contain. Stream the bytes untouched.
+        readfile($file);
         exit();
     } else {
         // If the file does not exist, send a 404 'Not Found' response
@@ -103,3 +103,4 @@ if (isset($_SERVER['HTTP_REFERER']) && isset($extension)) {
 }
 
 require __DIR__ . '/app/index.php';
+ob_end_flush();

@@ -55,6 +55,7 @@ class Router
                     break;
 
                 $class = new $route->Class();
+                http_response_code(200);
                 call_user_func_array([$class, $route->Method], $params);
                 return;
             }

@@ -251,6 +251,14 @@ function handleDb(array $argv): void
         $proceed = readline('');
 
         if ($proceed === 'y' || $proceed === '') {
+            // Wipe uploaded files, the rows pointing at them are about to go
+            $uploadDir = __DIR__ . '/public/uploads/';
+            foreach (glob($uploadDir . '*') as $file) {
+                if (is_file($file))
+                    unlink($file);
+            }
+            writeTerminalLine('green', "Cleared uploads directory...");
+
             $pdo->exec('DROP DATABASE IF EXISTS `' . DB_NAME . '`');
             $pdo->exec('CREATE DATABASE `' . DB_NAME . '`');
             $pdo->exec('USE `' . DB_NAME . '`');
@@ -297,7 +305,13 @@ function handleDev(): void
     include_once 'config/config.php';
 
     removeAllTerminalStyles();
-    shell_exec(sprintf('php -S %s router.php', DB_HOST . ":" . PORT) . " -c app/config/php.ini");
+
+    // config/php.ini resolves extension_dir from this, so the ini stays portable
+    $phpExtDir = PHP_BINARY ? dirname(PHP_BINARY) . DIRECTORY_SEPARATOR . 'ext' : 'ext';
+    putenv('PHP_EXT_DIR=' . $phpExtDir);
+
+    // -c must precede the router file, the built-in server ignores it otherwise
+    shell_exec(sprintf('php -S %s -c ./config/php.ini router.php', DB_HOST . ":" . PORT));
 }
 
 function handleRoutesList(): void
