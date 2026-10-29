@@ -1,6 +1,7 @@
 {
 	"scripts": {
-		"dev": "node libraries/Classes/FileCompiler/sass-watch.js"
+		"dev": "node libraries/Classes/FileCompiler/sass-watch.js",
+		"build": "node libraries/Classes/FileCompiler/sass-watch.js --build"
 	},
 	"devDependencies": {
 		"sass": "^1.97.3"
