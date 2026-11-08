@@ -200,6 +200,18 @@ $schema->create('users', [
     'created_at' => ['type' => 'datetime', 'default' => 'CURRENT_TIMESTAMP'],
 ]);
 
+// 'foreign' only works in create(). The referenced table must already exist and the column types must match.
+// on_delete and on_update are optional: cascade, set null, restrict or no action
+$schema->create('posts', [
+    'id' => ['type' => 'int', 'primary', 'auto_increment', 'unsigned'],
+    'user_id' => [
+        'type' => 'int',
+        'unsigned',
+        'not_null',
+        'foreign' => ['table' => 'users', 'column' => 'id', 'on_delete' => 'cascade', 'on_update' => 'cascade'],
+    ],
+]);
+
 $schema->addColumn('users', 'role', ['type' => 'varchar', 'length' => 50, 'default' => 'user'], 'email');
 $schema->modifyColumn('users', 'name', ['type' => 'varchar', 'length' => 200, 'not_null']);
 $schema->drop('users');
