@@ -208,6 +208,89 @@ $schema->drop('users');
 **Supported column types:** `int`, `bigint`, `bool`, `varchar`, `text`, `datetime`, `date`, `float`, `decimal` <br>
 **Column flags:** `primary`, `auto_increment`, `unsigned`, `not_null`, `unique`, `default`, `foreign`
 
+#### Foreign keys
+
+Add a `foreign` key to a column definition inside `$schema->create()`. The value is an array describing the column it references:
+
+| Key         | Required | Description                                                                |
+| ----------- | -------- | -------------------------------------------------------------------------- |
+| `table`     | Yes      | The referenced table                                                       |
+| `column`    | Yes      | The referenced column, which must be a primary key or otherwise indexed    |
+| `on_delete` | No       | `cascade`, `set null`, `restrict` or `no action`                           |
+| `on_update` | No       | `cascade`, `set null`, `restrict` or `no action`                           |
+
+Leaving out `table` or `column` throws an `InvalidArgumentException`. Without `on_delete` or `on_update`, MySQL rejects changes to a parent row that still has child rows.
+
+Migrations live in `app/db/` (or `modules/{Name}/db/` for modules). Scaffold each one with `php Atlas create [name] -d`, then run them with `php Atlas db`. For example, to give every post an author:
+
+```php
+// app/db/01_create_table_users.php
+use Libraries\Classes\Database\SchemaBuilder;
+
+return new class {
+
+    public function Up(SchemaBuilder $schema): void
+    {
+        $schema->create('users', [
+            'id' => ['type' => 'int', 'unsigned', 'auto_increment', 'primary'],
+            'name' => ['type' => 'varchar', 'length' => 100, 'not_null'],
+        ]);
+    }
+
+    public function Down(SchemaBuilder $schema)
+    {
+        $schema->drop('users');
+    }
+};
+```
+
+```php
+// app/db/02_create_table_posts.php
+use Libraries\Classes\Database\SchemaBuilder;
+
+return new class {
+
+    public function Up(SchemaBuilder $schema): void
+    {
+        $schema->create('posts', [
+            'id' => ['type' => 'int', 'unsigned', 'auto_increment', 'primary'],
+            'user_id' => [
+                'type' => 'int',
+                'unsigned',
+                'not_null',
+                'foreign' => [
+                    'table' => 'users',
+                    'column' => 'id',
+                    'on_delete' => 'cascade',
+                    'on_update' => 'cascade',
+                ],
+            ],
+            'title' => ['type' => 'varchar', 'length' => 255, 'not_null'],
+        ]);
+    }
+
+    public function Down(SchemaBuilder $schema)
+    {
+        $schema->drop('posts');
+    }
+};
+```
+
+The `user_id` column compiles to this constraint, always named `fk_{table}_{column}`:
+
+```sql
+CONSTRAINT `fk_posts_user_id` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+```
+
+**Keep these rules in mind:**
+
+- **The referenced table has to exist first.** Migrations run in filename order across `app/db/` and `modules/*/db/`, and the number prefix comes from the order you scaffold them. Create parent tables before the tables that reference them.
+- **Column types must match.** If the referenced column is `int` and `unsigned`, the foreign key column must be too. A mismatch makes MySQL reject the table.
+- **`set null` needs a nullable column.** Columns are nullable unless they are marked `not_null`, so leave that flag off.
+- **Foreign keys only work in `create()`.** `addColumn()` and `modifyColumn()` silently ignore the `foreign` key, and SchemaBuilder has no method for adding a constraint to an existing table. While developing, add the key to the original `create()` call and rebuild with `php Atlas db:refresh`. This wipes the database and `public/uploads/`.
+- **Each foreign key covers one column.** Composite foreign keys are not supported.
+- **Drop child tables before their parents.** `drop()` does not disable foreign key checks, so MySQL refuses to drop a table that is still referenced. The CLI does not call `Down()` yet, so this applies when you call it or `drop()` yourself.
+
 ### Flux Template Engine
 
 Custom template syntax compiled to PHP and cached in `public/cache/compiled/`:
