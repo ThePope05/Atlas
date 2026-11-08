@@ -29,17 +29,17 @@ class SchemaBuilder
         $foreignKeys = [];
 
         foreach ($columns as $name => $col) {
-            if (in_array('auto_increment', $col) && !in_array('primary', $col)) {
+            if (in_array('auto_increment', $col, true) && !in_array('primary', $col, true)) {
                 throw new RuntimeException("AUTO_INCREMENT requires PRIMARY KEY");
             }
 
             $defs[] = $this->compileColumn($name, $col);
 
-            if (in_array('primary', $col)) {
+            if (in_array('primary', $col, true)) {
                 $primary[] = $name;
             }
 
-            if (in_array('unique', $col)) {
+            if (in_array('unique', $col, true)) {
                 $unique[] = "UNIQUE (`{$name}`)";
             }
 
@@ -69,17 +69,17 @@ class SchemaBuilder
 
         $sql = "`{$name}` " . $this->compileType($col);
 
-        if (in_array('unsigned', $col)) {
+        if (in_array('unsigned', $col, true)) {
             $sql .= ' UNSIGNED';
         }
 
-        $sql .= (in_array('not_null', $col) || in_array('primary', $col)) ? ' NOT NULL' : ' NULL';
+        $sql .= (in_array('not_null', $col, true) || in_array('primary', $col, true)) ? ' NOT NULL' : ' NULL';
 
         if (array_key_exists('default', $col)) {
             $sql .= ' DEFAULT ' . $this->compileDefault($col['default']);
         }
 
-        if (in_array('auto_increment', $col)) {
+        if (in_array('auto_increment', $col, true)) {
             $sql .= ' AUTO_INCREMENT';
         }
 
