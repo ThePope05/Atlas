@@ -214,7 +214,6 @@ $schema->create('posts', [
 
 $schema->addColumn('users', 'role', ['type' => 'varchar', 'length' => 50, 'default' => 'user'], 'email');
 $schema->modifyColumn('users', 'name', ['type' => 'varchar', 'length' => 200, 'not_null']);
-$schema->drop('posts');
 $schema->drop('users');
 ```
 
