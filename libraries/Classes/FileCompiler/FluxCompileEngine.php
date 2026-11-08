@@ -87,6 +87,21 @@ class FluxCompileEngine extends CompileEngine
             $contents
         );
 
+        $contents = preg_replace_callback(
+            '/@isRoute\s*\(\s*([\'"])([^\'"]+)\1\s*\)/',
+            function ($m) {
+                $route = rtrim($m[2], '/') ?: '/';
+                return "<?php if (isRoute('$route')): ?>";
+            },
+            $contents
+        );
+
+        $contents = preg_replace(
+            '/@endisRoute/',
+            '<?php endif; ?>',
+            $contents
+        );
+
         $contents = preg_replace(
             '/@if\s*\((.*)\)/',
             '<?php if ($1): ?>',
